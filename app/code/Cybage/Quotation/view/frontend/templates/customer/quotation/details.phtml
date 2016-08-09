@@ -1,0 +1,150 @@
+<?php
+/**
+ * Cybage Quotation Plugin
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Open Software License (OSL 3.0)
+ * It is available on the World Wide Web at:
+ * http://opensource.org/licenses/osl-3.0.php
+ * If you are unable to access it on the World Wide Web, please send an email
+ * To: Support_Magento@cybage.com.  We will send you a copy of the source file.
+ *
+ * @category   Quotation Plugin
+ * @package    Cybage_Quotation
+ * @copyright  Copyright (c) 2014 Cybage Software Pvt. Ltd., India
+ *             http://www.cybage.com/pages/centers-of-excellence/ecommerce/ecommerce.aspx
+ * @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
+ * @author     Cybage Software Pvt. Ltd. <Support_Magento@cybage.com>
+ */
+/** $block = Cybage\Quotation\Block\Quotationdetails * */
+$quotation = $block->getQuotationDetails();
+?>
+<form action="<?php echo $this->_storeManager->getStore()->getBaseUrl() . "quotation/item/update"; ?>" 
+      id="update_quotation_form" method="post">
+    <input name="form_key" type="hidden" value="<?php echo $this->getFrmKey() ?>" />
+    <table border="1" width="100%">
+        <tr>
+            <th width="20%">
+                <b><?php echo __('Product Image'); ?></b>
+            </th>
+            <th width="20%">
+                <b><?php echo __('Product Name'); ?></b>
+            </th>
+            <th width="20%">
+                <b><?php echo __('Quantity'); ?></b>
+            </th>
+            <th width="20%">
+                <b><?php echo __('Price'); ?></b>
+            </th>
+            <th width="20%">
+                <b><?php echo __('Proposed Price'); ?></b>
+            </th>
+            <th width="20%">
+                <b><?php echo __('Action'); ?></b>
+            </th>
+        </tr>
+        <?php foreach ($quotation as $key => $value) : ?>
+            <?php
+            if ((int) $value['parent_id'] != 0):
+                continue;
+            endif;
+            ?>
+            <tr>
+                <td>
+                    <img  src="<?php //echo $this->_storeManager->getStore()->getBaseUrl(\Magento\Framework\UrlInterface::URL_TYPE_MEDIA) . 'catalog/product' . $value['product']['thumbnail'];          ?>" width="50"/>
+                </td>
+                <td>
+                    <?php echo $value['name'] ?>
+                </td>
+                <td>
+                    <input type="text" 
+                           name="qty_<?php echo $value['item_id'] ?>" 
+                           value="<?php echo $value['qty'] ?>" 
+                           data-validate="{required:true,'validate-greater-than-zero':true,integer:true,'validate-number':true}"
+                           />
+                </td>
+                <td>
+                    <?php echo $this->priceFormat($value['product_price']); ?>
+                </td>
+                <td>
+                    <input type="text" 
+                           name="proposed_price_<?php echo $value['item_id'] ?>" 
+                           value="<?php echo $value['proposed_price'] ?>" 
+                           class="required-entry"
+                           data-validate="{required:true,'validate-greater-than-zero':true,'validate-number':true}"
+                           />
+                </td>
+                <td>
+                    <a href="<?php echo $this->_storeManager->getStore()->getBaseUrl() . "quotation/item/delete/id/{$value['item_id']}"; ?>" >
+                        Remove
+                    </a>
+                </td>
+            </tr>
+        <?php endforeach; ?>
+
+        <tr>
+            <td colspan="5" align="left" style="padding-left: 554px;">
+                <b style="width:36%; display: inline-block;">Actual Price: </b> <?php //echo $this->priceFormat($quotation['quotation']['total_actual_price']);          ?>
+                <br/>
+                <b style="width:36%; display: inline-block;">Proposed Price: </b> 
+
+                <?php /* if ($quotation['quotation']['quotation_status'] == 0 || $quotation['quotation']['quotation_status'] == 2): ?>
+                  <input type="hidden" name="quote_id"
+                  value="<?php echo ($quotation['quotation']['id']); ?>" style="width:30%"/>
+                  <input type="text" name="total_proposed_price"
+                  value="<?php echo ($quotation['quotation']['total_proposed_price']); ?>" style="width:30%"/>
+                  <?php /*else: ?>
+                  <?php echo $this->priceFormat($quotation['quotation']['total_proposed_price']); ?>
+                  <?php endif; */ ?>
+
+            </td>
+        </tr>
+        <tr>
+            <td colspan="4" align="right">
+                <b>Comment: </b> 
+                <?php /* if ($quotation['quotation']['quotation_status'] == 0 || $quotation['quotation']['quotation_status'] == 2): ?>
+                  <textarea name='comment'></textarea>
+                  <?php endif; */ ?>
+            </td>
+            <td>
+                <?php /* if (empty($quotation['quotation']['quotation_status'])  || $quotation['quotation']['quotation_status'] == 2): */ ?>
+                <input type="submit" name="submit_quotation" value="Submit" class="action primary"/>
+                <?php /* endif; */ ?>
+            </td>
+        </tr>
+
+    </table>
+</form>
+
+<script type="text/javascript">
+    
+    require([
+        'jquery',
+        'mage/mage'
+    ], function ($) {
+        var dataForm = $('#update_quotation_form');
+        dataForm.mage('validation', {
+            submitHandler: function (f)
+            {
+                if (f && f.elements)
+                {
+                    for (var i = f.elements.length; i--; )
+                    {
+                        var o = f.elements[i];
+                        if (o.tagName.toLowerCase() == "input"
+                                && o.value == o.defaultValue
+                                && (!o.disabled || o.disabled.toLowerCase() == "disabled"))
+                        {
+                            if (!(o.disabled = true))
+                            {
+                                o.disabled = "disabled";
+                            }
+                        }
+                    }
+                }
+                f.submit();
+            }
+        });
+    });
+</script>   

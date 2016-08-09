@@ -1,0 +1,86 @@
+<?php
+/**
+ * Cybage Quotation Plugin
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Open Software License (OSL 3.0)
+ * It is available on the World Wide Web at:
+ * http://opensource.org/licenses/osl-3.0.php
+ * If you are unable to access it on the World Wide Web, please send an email
+ * To: Support_Magento@cybage.com.  We will send you a copy of the source file.
+ *
+ * @category   Quotation Plugin
+ * @package    Cybage_Quotation
+ * @copyright  Copyright (c) 2014 Cybage Software Pvt. Ltd., India
+ *             http://www.cybage.com/pages/centers-of-excellence/ecommerce/ecommerce.aspx
+ * @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
+ * @author     Cybage Software Pvt. Ltd. <Support_Magento@cybage.com>
+ */
+?>
+<?php $_quotations = $block->getQuotations(); ?>
+<?php if (count($_quotations)): ?>
+    <div class="table-wrapper downloadable-products">
+        <table id="my-downloadable-products-table" class="data table table-downloadable-products">
+            <caption class="table-caption"><?php echo __('List Event') ?></caption>
+            <thead>
+                <tr>
+                    <th scope="col" class="col title"><?php echo __('Quotation #') ?></th>
+                    <th scope="col" class="col title"><?php echo __('Total Actual Price') ?></th>
+                    <th scope="col" class="col title"><?php echo __('Total Proposed Price') ?></th>
+                    <th scope="col" class="col title"><?php echo __('Status') ?></th>
+                    <th scope="col" class="col title"><?php echo __('Last Updated') ?></th>
+                    <th scope="col" class="col actions"><?php echo __('Actions') ?></th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php foreach ($_quotations as $_quotation): ?>
+                    <tr>
+                        <td data-th="<?php echo $block->escapeHtml(__('Quotation')) ?>" class="col title">
+                            <?php echo $_quotation['id'] ?>
+                        </td>
+                        <td data-th="<?php echo $block->escapeHtml(__('Total Actual Price')) ?>" class="col title">
+                            <?php echo $this->priceFormat($_quotation['total_product_price']); ?>
+                        </td>
+                        <td data-th="<?php echo $block->escapeHtml(__('Total Proposed Price')) ?>" class="col title">
+                            <?php echo $this->priceFormat($_quotation['total_proposed_price']); ?>
+                        </td>
+                        <td data-th="<?php echo $block->escapeHtml(__('Quotation Status')) ?>" class="col title">
+                            <?php echo $block->getQuotationStatus($_quotation['quotation_status']); ?>
+                        </td>
+                        <td data-th="<?php echo $block->escapeHtml(__('Last Updated')) ?>" class="col title">
+                            <?php echo $this->gmtDate($_quotation['updated_at'],'Y-m-d'); ?>
+                        </td>
+                        <td data-th="<?php echo $block->escapeHtml(__('Actions')) ?>" class="col actions">
+                            <a href="<?php echo $block->getViewUrl($_quotation['id']) ?>" class="action view">
+                                <span><?php echo __('View') ?></span>
+                            </a>
+                        </td>
+                    </tr>
+                <?php endforeach; ?>
+            </tbody>
+        </table>
+    </div>
+    <?php if ($block->getChildHtml('pager')): ?>
+        <div class="toolbar downloadable-products-toolbar bottom">
+            <?php echo $block->getChildHtml('pager'); ?>
+        </div>
+    <?php endif; ?>
+<?php else: ?>
+    <div class="message info empty"><span><?php echo __('You have not Quotations !.'); ?></span></div>
+<?php endif; ?>
+<div class="actions-toolbar">
+    <div class="primary">
+        <a href="<?php echo $block->escapeUrl($block->getBackUrl()) ?>" class="action back">
+            <span><?php echo __('Back') ?></span>
+        </a>
+        <?php /* ?>
+          <a href="<?php echo $block->escapeUrl($block->getNewRegistryUrl()) ?>" class="action new">
+          <span><span><?php echo __('New Registry') ?></span> </span>
+          </a>
+          <a href="<?php echo $block->escapeUrl($block->getUpdateUrl()) ?>" class="action update">
+          <span><span><?php echo __('Update Registry') ?></span> </span>
+          </a>
+          <?php */ ?>
+    </div>
+</div>

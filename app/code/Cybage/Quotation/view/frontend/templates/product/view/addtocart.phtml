@@ -1,0 +1,109 @@
+<?php
+/**
+ * Cybage Quotation Plugin
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Open Software License (OSL 3.0)
+ * It is available on the World Wide Web at:
+ * http://opensource.org/licenses/osl-3.0.php
+ * If you are unable to access it on the World Wide Web, please send an email
+ * To: Support_Magento@cybage.com.  We will send you a copy of the source file.
+ *
+ * @category   Quotation Plugin
+ * @package    Cybage_Quotation
+ * @copyright  Copyright (c) 2014 Cybage Software Pvt. Ltd., India
+ *             http://www.cybage.com/pages/centers-of-excellence/ecommerce/ecommerce.aspx
+ * @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
+ * @author     Cybage Software Pvt. Ltd. <Support_Magento@cybage.com>
+ */
+//echo get_class($block);
+?>
+<?php $_product = $block->getProduct(); ?>
+<?php $buttonTitle = __('Add to Cart'); ?>
+<?php if ($_product->isSaleable()): ?>
+    <div class="box-tocart">
+        <div class="fieldset">
+            <?php if ($block->shouldRenderQuantity()): ?>
+                <div class="field qty">
+                    <label class="label" for="qty"><span><?php /* @escapeNotVerified */ echo __('Qty') ?></span></label>
+                    <div class="control">
+                        <input type="number"
+                               name="qty"
+                               id="qty"
+                               maxlength="12"
+                               value="<?php /* @escapeNotVerified */ echo $block->getProductDefaultQty() * 1 ?>"
+                               title="<?php /* @escapeNotVerified */ echo __('Qty') ?>" class="input-text qty"
+                               data-validate="<?php echo $block->escapeHtml(json_encode($block->getQuantityValidators())) ?>"
+                               />
+                    </div>
+                </div>
+            <?php endif; ?>
+            <div class="actions">
+                <button type="submit"
+                        title="<?php /* @escapeNotVerified */ echo $buttonTitle ?>"
+                        class="action primary tocart"
+                        id="product-addtocart-button">
+                    <span><?php /* @escapeNotVerified */ echo $buttonTitle ?></span>
+                </button>
+                <?php if ($this->showAddToQuote('pdp')): ?>
+                <button type="submit"
+                        title="<?php echo 'Add to Quote' ?>"
+                        class=""
+                        name="add_to_quote"
+                        value="add_to_quote"
+                        id="add_to_quote_buttion">
+                    <span><?php echo 'Add to Quote' ?></span>
+                </button>
+                <?php endif; ?>
+                <?php echo $block->getChildHtml('', true) ?>
+            </div>
+        </div>
+    </div>
+<?php endif; ?>
+<?php if ($block->isRedirectToCartEnabled()) : ?>
+    <script type="text/x-magento-init">
+        {
+        "#product_addtocart_form": {
+        "Magento_Catalog/product/view/validation": {
+        "radioCheckboxClosest": ".nested"
+        }
+        }
+        }
+    </script>
+<?php else : ?>
+    <script>
+        require([
+            'jquery',
+            'mage/mage',
+            'Magento_Catalog/product/view/validation',
+            'Magento_Catalog/js/catalog-add-to-cart'
+        ], function ($) {
+            var is_quotation = false;
+            $('#add_to_quote_buttion').click(function () {
+                $('#product_addtocart_form').attr('action', "<?php echo $block->getUrl('quotation/add'); ?>");
+                is_quotation = true;
+            })
+            $('#product-addtocart-button').click(function () {
+                $('#product_addtocart_form').attr('action', "<?php echo $block->getSubmitUrl($_product)   ?>");
+                is_quotation = false;
+            });
+            'use strict';
+            $('#product_addtocart_form').mage('validation', {
+                radioCheckboxClosest: '.nested',
+                submitHandler: function (form) {
+                    if (is_quotation) {
+                        form.submit();
+                    } else {
+                        var widget = $(form).catalogAddToCart({
+                            bindSubmit: false
+                        });
+                        widget.catalogAddToCart('submitForm', $(form));
+                        return false;
+                    }
+                }
+            });
+        });
+
+    </script>
+<?php endif; ?>

@@ -1,0 +1,31 @@
+<?xml version="1.0"?>
+<!--
+/**
+* Cybage Quotation Plugin
+*
+* NOTICE OF LICENSE
+*
+* This source file is subject to the Open Software License (OSL 3.0)
+* It is available on the World Wide Web at:
+* http://opensource.org/licenses/osl-3.0.php
+* If you are unable to access it on the World Wide Web, please send an email
+* To: Support_Magento@cybage.com.  We will send you a copy of the source file.
+*
+* @category   B2b Plugin
+* @package    Cybage_B2b
+* @copyright  Copyright (c) 2014 Cybage Software Pvt. Ltd., India
+*             http://www.cybage.com/pages/centers-of-excellence/ecommerce/ecommerce.aspx
+* @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
+* @author     Cybage Software Pvt. Ltd. <Support_Magento@cybage.com>
+*/
+-->
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <body>
+        <referenceBlock name='product.info.addtocart.bundle'>
+            <action method='setTemplate'>
+                <argument name='template' xsi:type='string'>Cybage_Quotation::product/view/addtocart.phtml</argument>
+            </action>
+        </referenceBlock>
+        
+    </body>
+</page>
