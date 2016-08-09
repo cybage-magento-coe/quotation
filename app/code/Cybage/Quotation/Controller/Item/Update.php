@@ -67,7 +67,6 @@ class Update extends \Magento\Customer\Controller\AbstractAccount {
                     $this->_quotationitem->unsetData();
                 }
                 echo $quotationId;
-                die();
                 $this->_event->dispatch('btob_quotation_updated', array('quotationid' => 123));
                 $this->_managerinterface->addSuccess('Quotation successfully updated');
             } catch (Exception $exc) {
