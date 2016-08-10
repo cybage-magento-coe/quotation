@@ -50,7 +50,6 @@ class Updatequotation implements ObserverInterface {
     }
 
     public function execute(Observer $observer) {
-        die('sas');
        $item = $observer->getItem();
         
         $quotationItemCollection = $this->_quotationItem->addFieldToFilter('quotation_id', $this->_quotationId);
@@ -126,5 +125,44 @@ class Updatequotation implements ObserverInterface {
         }
         return $productPrice + $optionPrice;
     }
+    
+    
+    //the configurable product id
+//$productId = 126; 
+////load the product - this may not be needed if you get the product from a collection with the prices loaded.
+//$product = Mage::getModel('catalog/product')->load($productId); 
+////get all configurable attributes
+//$attributes = $product->getTypeInstance(true)->getConfigurableAttributes($product);
+////array to keep the price differences for each attribute value
+//$pricesByAttributeValues = array();
+////base price of the configurable product 
+//$basePrice = $product->getFinalPrice();
+////loop through the attributes and get the price adjustments specified in the configurable product admin page
+//foreach ($attributes as $attribute){
+//    $prices = $attribute->getPrices();
+//    foreach ($prices as $price){
+//        if ($price['is_percent']){ //if the price is specified in percents
+//            $pricesByAttributeValues[$price['value_index']] = (float)$price['pricing_value'] * $basePrice / 100;
+//        }
+//        else { //if the price is absolute value
+//            $pricesByAttributeValues[$price['value_index']] = (float)$price['pricing_value'];
+//        }
+//    }
+//}
+//
+////get all simple products
+//$simple = $product->getTypeInstance()->getUsedProducts();
+////loop through the products
+//foreach ($simple as $sProduct){
+//    $totalPrice = $basePrice;
+//    //loop through the configurable attributes
+//    foreach ($attributes as $attribute){
+//        //get the value for a specific attribute for a simple product
+//        $value = $sProduct->getData($attribute->getProductAttribute()->getAttributeCode());
+//        //add the price adjustment to the total price of the simple product
+//        if (isset($pricesByAttributeValues[$value])){
+//            $totalPrice += $pricesByAttributeValues[$value];
+//        }
+//    }
 
 }

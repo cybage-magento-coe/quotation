@@ -108,6 +108,10 @@ class Index extends \Magento\Customer\Controller\AbstractAccount {
      */
     private function addQuotationItem() {
         $data = $this->getRequest()->getParams();
+//        echo '<pre>';
+//        print_r($data);
+//        echo '<pre>';
+//        die();
         if ($data['product']) {
             try {
                 /* Check for Simple Product */

@@ -57,14 +57,10 @@ class Update extends \Magento\Customer\Controller\AbstractAccount {
                     array_reverse($temp);
                     array_pop($temp);
                     $func = 'set'.$this->dashesToCamelCase(implode('_', $temp));
-                    
-                    
-                    //$setData[implode('_', $temp)] = $value;
                     $this->_quotationitem->load($id);
                     $this->_quotationitem->$func($value);
 
                     $this->_event->dispatch('btob_quotation_updated', array('item' => $this->_quotationitem));
-                    die('sasa');
                     $this->_quotationitem->save();
                     $this->_quotationitem->unsetData();
                 }
@@ -77,6 +73,12 @@ class Update extends \Magento\Customer\Controller\AbstractAccount {
         return $resultRedirect;
     }
 
+    /**
+     * converts a string to camelcase
+     * @param type $string
+     * @param type $capitalizeFirstCharacter
+     * @return type
+     */
     private function dashesToCamelCase($string, $capitalizeFirstCharacter = false) {
 
         $str = str_replace(' ', '', ucwords(str_replace('_', ' ', $string)));
