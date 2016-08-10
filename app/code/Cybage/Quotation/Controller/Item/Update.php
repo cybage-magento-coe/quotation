@@ -47,28 +47,27 @@ class Update extends \Magento\Customer\Controller\AbstractAccount {
         $resultRedirect = $this->resultFactory->create(ResultFactory::TYPE_REDIRECT);
         $data = $this->getRequest()->getParams();
         $setData = array();
-        $quotationId = null;
+        //$quotationId = null;
         if (!empty($data)) {
             try {
                 foreach ($data as $key => $value) {
-                    
+
                     $temp = explode('_', $key);
                     $id = end($temp);
                     array_reverse($temp);
                     array_pop($temp);
-                    $setData['id'] = $id;
-                    if(!$quotationId){
-                        $param['item_id'] = $id;
-                        $quotationId = $this->_quotaionhelper->getQuotationId($param['item_id']);
-                    }
-                    $setData[implode('_', $temp)] = $value;
-                    $this->_quotationitem->setData($setData);
+                    $func = 'set'.$this->dashesToCamelCase(implode('_', $temp));
+                    
+                    
+                    //$setData[implode('_', $temp)] = $value;
+                    $this->_quotationitem->load($id);
+                    $this->_quotationitem->$func($value);
+
+                    $this->_event->dispatch('btob_quotation_updated', array('item' => $this->_quotationitem));
+                    die('sasa');
                     $this->_quotationitem->save();
                     $this->_quotationitem->unsetData();
                 }
-                echo $quotationId;
-                die();
-                $this->_event->dispatch('btob_quotation_updated', array('quotationid' => 123));
                 $this->_managerinterface->addSuccess('Quotation successfully updated');
             } catch (Exception $exc) {
                 $this->_managerinterface->addError($exc->getMessage());
@@ -76,6 +75,17 @@ class Update extends \Magento\Customer\Controller\AbstractAccount {
         }
         $resultRedirect->setUrl($this->_redirect->getRefererUrl());
         return $resultRedirect;
+    }
+
+    private function dashesToCamelCase($string, $capitalizeFirstCharacter = false) {
+
+        $str = str_replace(' ', '', ucwords(str_replace('_', ' ', $string)));
+
+        if (!$capitalizeFirstCharacter) {
+            $str[0] = strtolower($str[0]);
+        }
+
+        return $str;
     }
 
 }

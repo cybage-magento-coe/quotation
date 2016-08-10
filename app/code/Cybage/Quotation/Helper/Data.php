@@ -133,7 +133,6 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper {
      */
     
     public function getQuotationId($param = array()){
-        
         if(isset($param['item_id'])){
             return $this->_quotationItem->load((int)$param['item_id'])->getQuotationId();
         }

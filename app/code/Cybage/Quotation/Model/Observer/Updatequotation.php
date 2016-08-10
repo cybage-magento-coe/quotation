@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Cybage Quotation Plugin
  *
@@ -24,10 +25,106 @@ namespace Cybage\Quotation\Model\Observer;
 use Magento\Framework\Event\Observer;
 use Magento\Framework\Event\ObserverInterface;
 
-class Updatequotation implements ObserverInterface{
-    //put your code here
-    
-    public function execute(Observer $observer) {
-        die('observer working');
+class Updatequotation implements ObserverInterface {
+
+    private $_quotation;
+    private $_quotationItem;
+    private $_quotationId;
+    private $_product;
+    private $_productOption;
+//    private $_totalProposedPrice;
+//    private $_totalProductPrice;
+    private $_productOptionValue;
+
+    public function __construct(\Cybage\Quotation\Model\Quotation $quotation,
+            \Cybage\Quotation\Model\ResourceModel\QuotationItem\Collection $quotationItem, 
+            \Magento\Catalog\Model\Product $product, 
+            \Magento\Catalog\Model\Product\Option $productOption, 
+            \Magento\Catalog\Model\Product\Option\Value $productOptionValue
+    ) {
+        $this->_quotation = $quotation;
+        $this->_quotationItem = $quotationItem;
+        $this->_product = $product;
+        $this->_productOption = $productOption;
+        $this->_productOptionValue = $productOptionValue;
     }
+
+    public function execute(Observer $observer) {
+        die('sas');
+       $item = $observer->getItem();
+        
+        $quotationItemCollection = $this->_quotationItem->addFieldToFilter('quotation_id', $this->_quotationId);
+        $productPrice = 0;
+        try {
+            $productDetails = $this->getProductDetails($item->getProductId());
+            $qty = (float) $item->getQty();
+            if ($item->getOptions() && $productDetails->getTypeID() == 'simple') {
+                $oprions = unserialize($item->getOptions());
+                $optionIds = array();
+                $optionValues = array();
+                foreach ($oprions as $key => $value) {
+                    $optionIds[] = $key;
+                    $optionValues[] = $value;
+                }
+                $opprice = $this->getOptionPrice($productDetails, $optionIds, $optionValues);
+                $qty = $item->getQty();
+                $productPrice = $opprice * $qty;
+            } else {
+                $opprice = $productDetails->getPrice();
+                $productPrice = $opprice * $qty;
+            }
+            if (!$item->getSku()) {
+                $item->setSku($productDetails->getSku());
+            }
+            $item->setProductPrice($productPrice);
+        } catch (Exception $exc) {
+            echo $exc->getTraceAsString();
+        }
+    }
+
+    /**
+     * rerturns the product object
+     * @param type $pid
+     * @return type object
+     */
+    private function getProductDetails($pid) {
+        return $this->_product->load($pid);
+    }
+
+    /**
+     * Update quotation table
+     */
+//    private function updateQuotation() {
+//        $this->_quotation->load($this->_quotationId)
+//                ->setTotalProductPrice($this->_totalProductPrice)
+//                ->setTotalProposedPrice($this->_totalProposedPrice)
+//                ->save();
+//    }
+
+    public function getOptionPrice($product, $optionIds, $optionValues) {
+        $options = $this->_productOption->getProductOptionCollection($product);
+        $options->addFieldToFilter('main_table.option_id', array('in' => $optionIds));
+        $productPrice = $product->getPrice();
+        $optionPrice = 0;
+        foreach ($options as $option) {
+            $optionvalues = $this->_productOptionValue->getValuesCollection($option);
+            $optionvalues->addFieldToFilter('main_table.option_type_id', array('in' => $optionValues));
+            foreach ($optionvalues as $value) {
+                $priceData = $value->getData();
+                switch ($priceData['price_type']) {
+                    case 'percent':
+                        $optionPrice += ($productPrice * $priceData['price'] / 100);
+                        break;
+                    case 'fixed':
+                        $optionPrice += $priceData['price'];
+                        break;
+                    case 'default':
+                        $optionPrice = 0;
+                        break;
+                }
+            }
+        }
+        return $productPrice + $optionPrice;
+    }
+
 }

@@ -21,7 +21,9 @@
  */
 
 namespace Cybage\Quotation\Controller\Add;
+
 use Magento\Framework\Controller\ResultFactory;
+
 class Index extends \Magento\Customer\Controller\AbstractAccount {
 
     protected $_quotation;
@@ -33,9 +35,10 @@ class Index extends \Magento\Customer\Controller\AbstractAccount {
     protected $_product;
     protected $_configurableProduct;
     protected $_managerinterface;
+    protected $_event;
 
     public function __construct(
-    \Magento\Framework\App\Action\Context $context, \Cybage\Quotation\Model\Quotation $quotation, \Magento\Customer\Model\Session $customer, \Cybage\Quotation\Model\QuotationItem $quotationItem, \Magento\Framework\Data\Form\FormKey\Validator $formKeyValidator, \Magento\Catalog\Model\Product $product, \Magento\ConfigurableProduct\Model\Product\Type\Configurable $configurableProduct,\Magento\Framework\Message\ManagerInterface $managerinterface
+    \Magento\Framework\App\Action\Context $context, \Cybage\Quotation\Model\Quotation $quotation, \Magento\Customer\Model\Session $customer, \Cybage\Quotation\Model\QuotationItem $quotationItem, \Magento\Framework\Data\Form\FormKey\Validator $formKeyValidator, \Magento\Catalog\Model\Product $product, \Magento\ConfigurableProduct\Model\Product\Type\Configurable $configurableProduct, \Magento\Framework\Message\ManagerInterface $managerinterface, \Magento\Framework\Event\ManagerInterface $event
     ) {
         $this->_quotation = $quotation;
         $this->_customer = $customer;
@@ -45,6 +48,7 @@ class Index extends \Magento\Customer\Controller\AbstractAccount {
         $this->_product = $product;
         $this->_configurableProduct = $configurableProduct;
         $this->_managerinterface = $managerinterface;
+        $this->_event = $event;
         parent::__construct($context);
     }
 
@@ -66,7 +70,6 @@ class Index extends \Magento\Customer\Controller\AbstractAccount {
                     $this->addQuotationItem();
                 }
                 $this->_managerinterface->addSuccess('Product successfully added to quotation');
-                
             } catch (Exception $exc) {
                 $this->_managerinterface->addError($exc->getMessage());
             }
@@ -116,6 +119,9 @@ class Index extends \Magento\Customer\Controller\AbstractAccount {
                 } else {
                     $param['qty'] = (int) isset($data['qty']) ? $data['qty'] : 0;
                     $param['productid'] = $data['product'];
+                    if (isset($data['options'])) {
+                        $param['options'] = serialize($data['options']);
+                    }
                 }
                 $parentId = $this->saveQuotationItem($param);
                 /* Check for Simple Product end */
@@ -204,8 +210,15 @@ class Index extends \Magento\Customer\Controller\AbstractAccount {
                     if (isset($param['parentid'])) {
                         $this->_quotationItem->setParentId($param['parentid']);
                     }
-                    $this->_quotationItem->save();
-                    $id = $this->_quotationItem->getId();
+                    if (isset($param['options'])) {
+                        $this->_quotationItem->setOptions($param['options']);
+                    }
+                    $this->_event->dispatch('btob_quotation_updated', array('item' => $this->_quotationItem));
+
+                    if ($param['qty']) {
+                        $this->_quotationItem->save();
+                        $id = $this->_quotationItem->getId();
+                    }
                 }
                 $this->_quotationItem->unsetData();
             } catch (Exception $exc) {
