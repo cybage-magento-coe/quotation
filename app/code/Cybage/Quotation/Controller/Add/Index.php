@@ -75,6 +75,9 @@ class Index extends \Magento\Customer\Controller\AbstractAccount {
             }
             $resultRedirect->setPath('quotation/view/index', array('id' => $this->_quotationId));
             return $resultRedirect;
+        } else {
+            $resultRedirect->setPath('customer/account/');
+            return $resultRedirect;
         }
     }
 
@@ -110,63 +113,66 @@ class Index extends \Magento\Customer\Controller\AbstractAccount {
         $data = $this->getRequest()->getParams();
 //        echo '<pre>';
 //        print_r($data);
-//        echo '<pre>';
-//        die();
+
+
         if ($data['product']) {
             try {
                 /* Check for Simple Product */
                 $item = $this->getQuotationItemId($data);
                 $param = array();
                 if (!empty($item)) {
-                    $param['qty'] = (int) $item['qty'] + isset($data['qty']) ? $data['qty'] : 0;
+                    if (isset($data['qty'])) {
+                        $param['qty'] = (int) $item['qty'] + $data['qty'];
+                    } else {
+                        $param['qty'] = 1;
+                    }
                     $param['id'] = $item['id'];
                 } else {
                     $param['qty'] = (int) isset($data['qty']) ? $data['qty'] : 0;
                     $param['productid'] = $data['product'];
                     if (isset($data['options'])) {
                         $param['options'] = serialize($data['options']);
+                    } elseif (isset($data['super_attribute'])) {
+                        $param['options'] = serialize($data['super_attribute']);
+                    } elseif (isset($data['bundle_option']) && isset($data['bundle_option_qty'])) {
+                        $options = array();
+                        $options['bundle_option'] = $data['bundle_option'];
+                        $options['bundle_option_qty'] = $data['bundle_option_qty'];
+//                        foreach ($data['bundle_option'] as $key => $value) {
+//                            $options[$value] = $data['bundle_option_qty'][$key];
+//                        }
+                        $param['options'] = serialize($options);
                     }
                 }
+//                print_r($param);
+//                echo '<pre>';
+
                 $parentId = $this->saveQuotationItem($param);
+//                die();
                 /* Check for Simple Product end */
 
-                /* Code for Configurable Product */
-                if (isset($data['super_attribute'])) {
-                    $child = $this->getSelectedChildProducts($data);
-                    $childItem = $this->getQuotationItemId($data, $data['product'], $child->getId());
-                    $param = array();
-                    if (!empty($childItem)) {
-                        $param['qty'] = (int) $childItem['qty'] + $data['qty'];
-                        $param['id'] = $childItem['id'];
-                    } else {
-                        $param['productid'] = $child->getId();
-                        $param['qty'] = $data['qty'];
-                        $param['parentid'] = $parentId/* $data['product'] */;
-                    }
 
-                    $this->saveQuotationItem($param);
-                }
-                /* Code for Configurable Product end */
 
                 /* Check for Bundle Product */
-                if (isset($data['bundle_option']) && isset($data['bundle_option_qty'])) {
-                    $childProducts = $this->getSelectedChildProducts($data);
-                    if (!empty($childProducts)) {
-                        foreach ($childProducts as $key => $value) {
-                            $childItem = $this->getQuotationItemId($data, $data['product'], $value);
-                            $param = array();
-                            if (!empty($childItem)) {
-                                $param['qty'] = (int) $childItem['qty'] + ($data['bundle_option_qty'][$key]) * $data['qty'];
-                                $param['id'] = $childItem['id'];
-                            } else {
-                                $param['productid'] = $value;
-                                $param['qty'] = ($data['bundle_option_qty'][$key]) * $data['qty'];
-                                $param['parentid'] = $parentId/* $data['product'] */;
-                            }
-                            $this->saveQuotationItem($param);
-                        }
-                    }
-                }
+//                if (isset($data['bundle_option']) && isset($data['bundle_option_qty'])) {
+//                    $childProducts = $this->getSelectedChildProducts($data);
+//                    if (!empty($childProducts)) {
+//                        foreach ($childProducts as $key => $value) {
+//                            $childItem = $this->getQuotationItemId($data, $data['product'], $value);
+//                            $param = array();
+//                            if (!empty($childItem)) {
+//                                $param['qty'] = (int) $childItem['qty'] + ($data['bundle_option_qty'][$key]) * $data['qty'];
+//                                $param['id'] = $childItem['id'];
+//                            } else {
+//                                $param['productid'] = $value;
+//                                $param['qty'] = ($data['bundle_option_qty'][$key]) * $data['qty'];
+//                                $param['parentid'] = $parentId/* $data['product'] */;
+//                            }
+//                            $this->saveQuotationItem($param);
+//                            //$this->_event->dispatch('btob_quotation_', array('item' => $this->_quotationItem));
+//                        }
+//                    }
+//                }
                 /* Check for Bundle Product end */
 
                 /* check for grouped product */
@@ -202,6 +208,7 @@ class Index extends \Magento\Customer\Controller\AbstractAccount {
                 if (isset($param['id'])) {
                     $item = $this->_quotationItem->load($param['id']);
                     $item->setQty($param['qty']);
+                    $this->_event->dispatch('btob_quotation_item_update_before', array('item' => $item));
                     $item->save();
                 } else {
                     $this->_quotationItem->setQuotationId($this->_quotationId);
@@ -217,7 +224,7 @@ class Index extends \Magento\Customer\Controller\AbstractAccount {
                     if (isset($param['options'])) {
                         $this->_quotationItem->setOptions($param['options']);
                     }
-                    $this->_event->dispatch('btob_quotation_updated', array('item' => $this->_quotationItem));
+                    $this->_event->dispatch('btob_quotation_item_update_before', array('item' => $this->_quotationItem));
 
                     if ($param['qty']) {
                         $this->_quotationItem->save();
@@ -251,6 +258,14 @@ class Index extends \Magento\Customer\Controller\AbstractAccount {
                 }
                 if (isset($data['options'])) {
                     $collection->addFieldToFilter('options', serialize($data['options']));
+                } elseif (isset($data['super_attribute'])) {
+                    $collection->addFieldToFilter('options', serialize($data['super_attribute']));
+                } elseif (isset($data['bundle_option']) && isset($data['bundle_option_qty'])) {
+                    $options = array();
+                    foreach ($data['bundle_option'] as $key => $value) {
+                        $options[$value] = $data['bundle_option_qty'][$key];
+                    }
+                    $collection->addFieldToFilter('options', serialize($options));
                 }
             } catch (Exception $exc) {
                 echo $exc->getMessage();
@@ -291,9 +306,6 @@ class Index extends \Magento\Customer\Controller\AbstractAccount {
         } catch (Exception $exc) {
             echo $exc->getMessage();
         }
-
-
-
         return $child;
     }
 

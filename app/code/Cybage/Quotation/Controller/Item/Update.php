@@ -60,7 +60,7 @@ class Update extends \Magento\Customer\Controller\AbstractAccount {
                     $this->_quotationitem->load($id);
                     $this->_quotationitem->$func($value);
 
-                    $this->_event->dispatch('btob_quotation_updated', array('item' => $this->_quotationitem));
+                    $this->_event->dispatch('btob_quotation_item_update_before', array('item' => $this->_quotationitem));
                     $this->_quotationitem->save();
                     $this->_quotationitem->unsetData();
                 }

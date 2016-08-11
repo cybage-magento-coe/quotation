@@ -36,11 +36,7 @@ class Updatequotation implements ObserverInterface {
 //    private $_totalProductPrice;
     private $_productOptionValue;
 
-    public function __construct(\Cybage\Quotation\Model\Quotation $quotation,
-            \Cybage\Quotation\Model\ResourceModel\QuotationItem\Collection $quotationItem, 
-            \Magento\Catalog\Model\Product $product, 
-            \Magento\Catalog\Model\Product\Option $productOption, 
-            \Magento\Catalog\Model\Product\Option\Value $productOptionValue
+    public function __construct(\Cybage\Quotation\Model\Quotation $quotation, \Cybage\Quotation\Model\ResourceModel\QuotationItem\Collection $quotationItem, \Magento\Catalog\Model\Product $product, \Magento\Catalog\Model\Product\Option $productOption, \Magento\Catalog\Model\Product\Option\Value $productOptionValue
     ) {
         $this->_quotation = $quotation;
         $this->_quotationItem = $quotationItem;
@@ -50,23 +46,34 @@ class Updatequotation implements ObserverInterface {
     }
 
     public function execute(Observer $observer) {
-       $item = $observer->getItem();
-        
+        $item = $observer->getItem();
+
         $quotationItemCollection = $this->_quotationItem->addFieldToFilter('quotation_id', $this->_quotationId);
         $productPrice = 0;
         try {
             $productDetails = $this->getProductDetails($item->getProductId());
             $qty = (float) $item->getQty();
+//            echo $productDetails->getTypeID();
+//            die();
             if ($item->getOptions() && $productDetails->getTypeID() == 'simple') {
-                $oprions = unserialize($item->getOptions());
+                $options = unserialize($item->getOptions());
                 $optionIds = array();
                 $optionValues = array();
-                foreach ($oprions as $key => $value) {
+                foreach ($options as $key => $value) {
                     $optionIds[] = $key;
                     $optionValues[] = $value;
                 }
                 $opprice = $this->getOptionPrice($productDetails, $optionIds, $optionValues);
                 $qty = $item->getQty();
+                $productPrice = $opprice * $qty;
+            } elseif ($productDetails->getTypeID() == 'configurable') {
+                $options = unserialize($item->getOptions());
+
+                $opprice = $this->getConfigurableProductPrice($productDetails, $options);
+                $productPrice = $opprice * $qty;
+            } elseif ($productDetails->getTypeID() == 'bundle') {
+                $options = unserialize($item->getOptions());
+                $opprice = $this->getBundleProductPrice($productDetails, $options);
                 $productPrice = $opprice * $qty;
             } else {
                 $opprice = $productDetails->getPrice();
@@ -125,44 +132,48 @@ class Updatequotation implements ObserverInterface {
         }
         return $productPrice + $optionPrice;
     }
-    
-    
-    //the configurable product id
-//$productId = 126; 
-////load the product - this may not be needed if you get the product from a collection with the prices loaded.
-//$product = Mage::getModel('catalog/product')->load($productId); 
-////get all configurable attributes
-//$attributes = $product->getTypeInstance(true)->getConfigurableAttributes($product);
-////array to keep the price differences for each attribute value
-//$pricesByAttributeValues = array();
-////base price of the configurable product 
-//$basePrice = $product->getFinalPrice();
-////loop through the attributes and get the price adjustments specified in the configurable product admin page
-//foreach ($attributes as $attribute){
-//    $prices = $attribute->getPrices();
-//    foreach ($prices as $price){
-//        if ($price['is_percent']){ //if the price is specified in percents
-//            $pricesByAttributeValues[$price['value_index']] = (float)$price['pricing_value'] * $basePrice / 100;
-//        }
-//        else { //if the price is absolute value
-//            $pricesByAttributeValues[$price['value_index']] = (float)$price['pricing_value'];
-//        }
-//    }
-//}
-//
-////get all simple products
-//$simple = $product->getTypeInstance()->getUsedProducts();
-////loop through the products
-//foreach ($simple as $sProduct){
-//    $totalPrice = $basePrice;
-//    //loop through the configurable attributes
-//    foreach ($attributes as $attribute){
-//        //get the value for a specific attribute for a simple product
-//        $value = $sProduct->getData($attribute->getProductAttribute()->getAttributeCode());
-//        //add the price adjustment to the total price of the simple product
-//        if (isset($pricesByAttributeValues[$value])){
-//            $totalPrice += $pricesByAttributeValues[$value];
-//        }
-//    }
+
+    private function getConfigurableProductPrice($product = null, $options = null) {
+        if ($product && $options) {
+            $attributes = $product->getTypeInstance(true)->getConfigurableAttributes($product);
+            $pricesByAttributeValues = array();
+            $basePrice = $product->getFinalPrice();
+            $simple = $product->getTypeInstance()->getUsedProducts($product);
+            foreach ($simple as $sProduct) {
+                $totalPrice = $basePrice;
+                $confArray = array();
+                foreach ($attributes as $attribute) {
+                    $attributeId = $attribute->getId();
+                    $productAttribute = $attribute->getProductAttribute();
+                    $productAttributeId = $productAttribute->getId();
+                    $value = $sProduct->getData($attribute->getProductAttribute()->getAttributeCode());
+                    $confArray[$productAttributeId] = $value;
+                }
+                if ($options == $confArray) {
+                    return $sProduct->getPrice();
+                }
+            }
+        }
+    }
+
+    private function getBundleProductPrice($product = null, $options = null) {
+        $price = 0;
+        try {
+            $selections = $product->getTypeInstance(true)
+                    ->getSelectionsCollection($product->getTypeInstance(true)
+                    ->getOptionsIds($product), $product);
+
+            foreach ($selections as $selection) {
+                if ($options['bundle_option'][$selection->getOptionId()] == $selection->getSelectionId()) {
+                    $price += $selection->getPrice() * $options['bundle_option_qty'][$selection->getOptionId()];
+                }
+            }
+
+            return $price;
+        } catch (Exception $exc) {
+            echo $exc->getMessage();
+        }
+        //return $child;
+    }
 
 }
