@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Backend:etc/menu.xsd">
+    <menu>
+        <add id="Cybage_Quotation::cybage_quotation" title="Quotation" 
+             module="Cybage_Quotation" sortOrder="50" resource="Cybage_Quotation::cybage_quotation" />
+        <add id="Cybage_Quotation::cybage_auotation_list" title="Quotation List" 
+             module="Cybage_Quotation" sortOrder="0" 
+             parent="Cybage_Quotation::cybage_quotation" 
+             action="quotation/listquotation" 
+             resource="Cybage_Quotation::cybage_auotation_list"/>
+    </menu>
+</config>
