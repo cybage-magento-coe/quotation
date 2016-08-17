@@ -6,84 +6,48 @@ use Magento\Backend\App\Action;
 
 class Index extends \Magento\Backend\App\Action {
 
-    /**
-     * Core registry
-     *
-     * @var \Magento\Framework\Registry
-     */
+    
     protected $_coreRegistry = null;
-
-    /**
-     * @var \Magento\Framework\View\Result\PageFactory
-     */
     protected $resultPageFactory;
+    protected $_quotationCollection;
+    protected $_resource;
 
-    /**
-     * @param Action\Context $context
-     * @param \Magento\Framework\View\Result\PageFactory $resultPageFactory
-     * @param \Magento\Framework\Registry $registry
-     */
     public function __construct(
-    Action\Context $context, \Magento\Framework\View\Result\PageFactory $resultPageFactory, \Magento\Framework\Registry $registry
+        Action\Context $context, \Magento\Framework\View\Result\PageFactory $resultPageFactory, \Magento\Framework\Registry $registry,
+         \Cybage\Quotation\Model\ResourceModel\Quotation\Collection $quotation,
+            \Magento\Framework\App\ResourceConnection $resource
     ) {
         $this->resultPageFactory = $resultPageFactory;
         $this->_coreRegistry = $registry;
+        $this->_quotationCollection = $quotation;
+        $this->_resource = $resource;
         parent::__construct($context);
     }
 
     
 
-    /**
-     * Init actions
-     *
-     * @return \Magento\Backend\Model\View\Result\Page
-     */
+    
     protected function _initAction() {
-        // load layout, set active menu and breadcrumbs
-        /** @var \Magento\Backend\Model\View\Result\Page $resultPage */
         $resultPage = $this->resultPageFactory->create();
-        $resultPage->setActiveMenu('Ashsmith_blog::post')
-                ->addBreadcrumb(__('Blog'), __('Blog'))
-                ->addBreadcrumb(__('Manage Blog Posts'), __('Manage Blog Posts'));
+        $resultPage->setActiveMenu('Cybage_Quotation::post')
+                ->addBreadcrumb(__('Quotation'), __('Quotation'))
+                ->addBreadcrumb(__('Manage Quotation'), __('Manage Quotation'));
         return $resultPage;
     }
 
-    /**
-     * Edit Blog post
-     *
-     * @return \Magento\Backend\Model\View\Result\Page|\Magento\Backend\Model\View\Result\Redirect
-     * @SuppressWarnings(PHPMD.NPathComplexity)
-     */
+    
     public function execute() {
-        $id = $this->getRequest()->getParam('post_id');
-        $model = $this->_objectManager->create('Ashsmith\Blog\Model\Post');
-
-        if ($id) {
-            $model->load($id);
-            if (!$model->getId()) {
-                $this->messageManager->addError(__('This post no longer exists.'));
-                /** \Magento\Backend\Model\View\Result\Redirect $resultRedirect */
-                $resultRedirect = $this->resultRedirectFactory->create();
-
-                return $resultRedirect->setPath('*/*/');
-            }
-        }
-
-        $data = $this->_objectManager->get('Magento\Backend\Model\Session')->getFormData(true);
-        if (!empty($data)) {
-            $model->setData($data);
-        }
-
-        $this->_coreRegistry->register('blog_post', $model);
-
-        /** @var \Magento\Backend\Model\View\Result\Page $resultPage */
+        
+        $id = $this->getRequest()->getParam('id');
+        $collection = $this->_quotationCollection->addFieldToFilter('main_table.id',$id);
+        $collection->join(['item'=>$this->_resource->getTableName('b2b_quotation_item')],'main_table.id=item.quotation_id',
+                ['item_id'=>'id','product_id','qty','product_price','proposed_price','options']);
+        
+        $this->_coreRegistry->register('quotation_details', $collection);
         $resultPage = $this->_initAction();
         $resultPage->addBreadcrumb(
-                $id ? __('Edit Blog Post') : __('New Blog Post'), $id ? __('Edit Blog Post') : __('New Blog Post')
+                $id ? __('Edit Quotation ') : __('New Quotation '), $id ? __('Edit Quotation ') : __('New Quotation ')
         );
-        $resultPage->getConfig()->getTitle()->prepend(__('Blog Posts'));
-        $resultPage->getConfig()->getTitle()
-                ->prepend($model->getId() ? $model->getTitle() : __('New Blog Post'));
 
         return $resultPage;
     }

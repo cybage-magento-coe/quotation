@@ -38,7 +38,11 @@ class Index extends \Magento\Customer\Controller\AbstractAccount {
     protected $_event;
 
     public function __construct(
-    \Magento\Framework\App\Action\Context $context, \Cybage\Quotation\Model\Quotation $quotation, \Magento\Customer\Model\Session $customer, \Cybage\Quotation\Model\QuotationItem $quotationItem, \Magento\Framework\Data\Form\FormKey\Validator $formKeyValidator, \Magento\Catalog\Model\Product $product, \Magento\ConfigurableProduct\Model\Product\Type\Configurable $configurableProduct, \Magento\Framework\Message\ManagerInterface $managerinterface, \Magento\Framework\Event\ManagerInterface $event
+    \Magento\Framework\App\Action\Context $context, \Cybage\Quotation\Model\Quotation $quotation, 
+            \Magento\Customer\Model\Session $customer, \Cybage\Quotation\Model\QuotationItem $quotationItem, 
+            \Magento\Framework\Data\Form\FormKey\Validator $formKeyValidator, \Magento\Catalog\Model\Product $product, 
+            \Magento\ConfigurableProduct\Model\Product\Type\Configurable $configurableProduct, 
+            \Magento\Framework\Message\ManagerInterface $managerinterface, \Magento\Framework\Event\ManagerInterface $event
     ) {
         $this->_quotation = $quotation;
         $this->_customer = $customer;

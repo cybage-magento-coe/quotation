@@ -46,12 +46,13 @@ class Update extends \Magento\Customer\Controller\AbstractAccount {
     public function execute() {
         $resultRedirect = $this->resultFactory->create(ResultFactory::TYPE_REDIRECT);
         $data = $this->getRequest()->getParams();
+        $quotationId = '';
+        
         $setData = array();
         //$quotationId = null;
         if (!empty($data)) {
             try {
                 foreach ($data as $key => $value) {
-
                     $temp = explode('_', $key);
                     $id = end($temp);
                     array_reverse($temp);
@@ -59,11 +60,12 @@ class Update extends \Magento\Customer\Controller\AbstractAccount {
                     $func = 'set'.$this->dashesToCamelCase(implode('_', $temp));
                     $this->_quotationitem->load($id);
                     $this->_quotationitem->$func($value);
-
+                    $quotationId = $this->_quotationitem->getQuotationId();
                     $this->_event->dispatch('btob_quotation_item_update_before', array('item' => $this->_quotationitem));
                     $this->_quotationitem->save();
                     $this->_quotationitem->unsetData();
                 }
+                $this->_event->dispatch('btob_quotation_item_update_after', array('id' => $quotationId));
                 $this->_managerinterface->addSuccess('Quotation successfully updated');
             } catch (Exception $exc) {
                 $this->_managerinterface->addError($exc->getMessage());
