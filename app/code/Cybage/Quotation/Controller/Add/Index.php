@@ -58,6 +58,10 @@ class Index extends \Magento\Customer\Controller\AbstractAccount {
 
     public function execute() {
         $data = $this->getRequest()->getParams();
+//        echo '<pre>';
+//        print_r($data);
+//        echo '</pre>';
+//        die();
         $resultRedirect = $this->resultFactory->create(ResultFactory::TYPE_REDIRECT);
         // Your code
 

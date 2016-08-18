@@ -57,7 +57,7 @@ $quotationStatus = null;
             ?>
             <tr>
                 <td>
-                    <img  src="<?php //echo $this->_storeManager->getStore()->getBaseUrl(\Magento\Framework\UrlInterface::URL_TYPE_MEDIA) . 'catalog/product' . $value['product']['thumbnail'];               ?>" width="50"/>
+                    <img  src="<?php //echo $this->_storeManager->getStore()->getBaseUrl(\Magento\Framework\UrlInterface::URL_TYPE_MEDIA) . 'catalog/product' . $value['product']['thumbnail'];                ?>" width="50"/>
                 </td>
                 <td>
                     <?php echo $value['name'] ?>
@@ -126,6 +126,8 @@ $quotationStatus = null;
                 <?php if ($quotationStatus == 7 || $quotationStatus == 2): ?>
                     <button type="submit" name="submit_quotation" value="submit" class="action primary" onclick="return confirm('Once it is submitted you will not be able to change again. Are you sure..?')">Submit Quotation</button>
                     <button type="submit" name="submit_quotation" value="update" class="action primary">Update Quotation</button>
+                <?php elseif ($quotationStatus == 1): ?>
+                    <button type="submit" name="convert_to_cart" value="update" class="action primary">Purchase Item(s)</button>
                 <?php endif; ?>
             </td>
         </tr>
