@@ -32,40 +32,61 @@ class Update extends \Magento\Customer\Controller\AbstractAccount {
     protected $_managerinterface;
     protected $_event;
     protected $_quotaionhelper;
+    protected $_quotationComment;
+    protected $_customer;
+    protected $_customerId;
 
-    public function __construct(\Magento\Framework\App\Action\Context $context, \Magento\Framework\Data\Form\FormKey\Validator $formKeyValidator, \Cybage\Quotation\Model\QuotationItem $quotationitem, \Magento\Framework\Message\ManagerInterface $managerinterface, \Magento\Framework\Event\ManagerInterface $event, \Cybage\Quotation\Helper\Data $data) {
+    public function __construct(\Magento\Framework\App\Action\Context $context, 
+            \Magento\Framework\Data\Form\FormKey\Validator $formKeyValidator, 
+            \Cybage\Quotation\Model\QuotationItem $quotationitem, 
+            \Magento\Framework\Message\ManagerInterface $managerinterface, 
+            \Magento\Framework\Event\ManagerInterface $event, 
+            \Cybage\Quotation\Helper\Data $data,
+            \Cybage\Quotation\Model\QuotationComment $quotationComment,
+            \Magento\Customer\Model\Session $customer
+            ) {
 
         $this->_formKeyValidator = $formKeyValidator;
         $this->_quotationitem = $quotationitem;
         $this->_managerinterface = $managerinterface;
         $this->_event = $event;
         $this->_quotaionhelper = $data;
+        $this->_quotationComment = $quotationComment;
+        $this->_customer = $customer;
+        $this->_customerId = $this->_customer->getCustomerId();
         parent::__construct($context);
     }
 
     public function execute() {
         $resultRedirect = $this->resultFactory->create(ResultFactory::TYPE_REDIRECT);
         $data = $this->getRequest()->getParams();
-        $quotationId = '';
-        
         $setData = array();
-        //$quotationId = null;
         if (!empty($data)) {
             try {
                 foreach ($data as $key => $value) {
                     $temp = explode('_', $key);
                     $id = end($temp);
+                    if(!is_numeric ($id)){
+                        continue;
+                    }
                     array_reverse($temp);
                     array_pop($temp);
                     $func = 'set'.$this->dashesToCamelCase(implode('_', $temp));
                     $this->_quotationitem->load($id);
                     $this->_quotationitem->$func($value);
-                    $quotationId = $this->_quotationitem->getQuotationId();
                     $this->_event->dispatch('btob_quotation_item_update_before', array('item' => $this->_quotationitem));
                     $this->_quotationitem->save();
                     $this->_quotationitem->unsetData();
                 }
-                $this->_event->dispatch('btob_quotation_item_update_after', array('id' => $quotationId));
+                $this->_event->dispatch('btob_quotation_item_update_after', array('id' => $data['quotationid']));
+                if(isset($data['comment']) && !empty($data['comment'])){
+                    $this->_quotationComment->setQuotationId($data['quotationid'])
+                            ->setCustomerId($this->_customerId)
+                            ->setComment($data['comment'])
+                            ->setCommenttedBy('c')
+                            ->save();
+                            
+                }
                 $this->_managerinterface->addSuccess('Quotation successfully updated');
             } catch (Exception $exc) {
                 $this->_managerinterface->addError($exc->getMessage());
@@ -82,13 +103,11 @@ class Update extends \Magento\Customer\Controller\AbstractAccount {
      * @return type
      */
     private function dashesToCamelCase($string, $capitalizeFirstCharacter = false) {
-
         $str = str_replace(' ', '', ucwords(str_replace('_', ' ', $string)));
 
         if (!$capitalizeFirstCharacter) {
             $str[0] = strtolower($str[0]);
         }
-
         return $str;
     }
 

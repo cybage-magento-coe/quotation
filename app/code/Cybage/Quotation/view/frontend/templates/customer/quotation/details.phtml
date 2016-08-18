@@ -19,6 +19,10 @@
  */
 /** $block = Cybage\Quotation\Block\Quotationdetails * */
 $quotation = $block->getQuotationDetails();
+$totalProductPrice = 0;
+$totalProposedPrice = 0;
+$quotationId = 0;
+$quotationStatus = null;
 ?>
 <form action="<?php echo $this->_storeManager->getStore()->getBaseUrl() . "quotation/item/update"; ?>" 
       id="update_quotation_form" method="post">
@@ -46,34 +50,43 @@ $quotation = $block->getQuotationDetails();
         </tr>
         <?php foreach ($quotation as $key => $value) : ?>
             <?php
-            if ((int) $value['parent_id'] != 0):
-                continue;
-            endif;
+            $totalProductPrice = $value['total_product_price'];
+            $totalProposedPrice = $value['total_proposed_price'];
+            $quotationId = $value['id'];
+            $quotationStatus = $value['quotation_status'];
             ?>
             <tr>
                 <td>
-                    <img  src="<?php //echo $this->_storeManager->getStore()->getBaseUrl(\Magento\Framework\UrlInterface::URL_TYPE_MEDIA) . 'catalog/product' . $value['product']['thumbnail'];          ?>" width="50"/>
+                    <img  src="<?php //echo $this->_storeManager->getStore()->getBaseUrl(\Magento\Framework\UrlInterface::URL_TYPE_MEDIA) . 'catalog/product' . $value['product']['thumbnail'];               ?>" width="50"/>
                 </td>
                 <td>
                     <?php echo $value['name'] ?>
                 </td>
                 <td>
-                    <input type="text" 
-                           name="qty_<?php echo $value['item_id'] ?>" 
-                           value="<?php echo $value['qty'] ?>" 
-                           data-validate="{required:true,'validate-greater-than-zero':true,integer:true,'validate-number':true}"
-                           />
+                    <?php if ($this->isUpdateAllowed($quotationStatus)): ?>
+                        <input type="text" 
+                               name="qty_<?php echo $value['item_id'] ?>" 
+                               value="<?php echo $value['qty'] ?>" 
+                               data-validate="{required:true,'validate-greater-than-zero':true,integer:true,'validate-number':true}"
+                               />
+                           <?php else: ?>
+                               <?php echo $value['qty'] ?>
+                           <?php endif; ?>
                 </td>
                 <td>
                     <?php echo $this->priceFormat($value['product_price']); ?>
                 </td>
                 <td>
-                    <input type="text" 
-                           name="proposed_price_<?php echo $value['item_id'] ?>" 
-                           value="<?php echo $value['proposed_price'] ?>" 
-                           class="required-entry"
-                           data-validate="{required:true,'validate-greater-than-zero':true,'validate-number':true}"
-                           />
+                    <?php if ($this->isUpdateAllowed($quotationStatus)): ?>
+                        <input type="text" 
+                               name="proposed_price_<?php echo $value['item_id'] ?>" 
+                               value="<?php echo $value['proposed_price'] ?>" 
+                               class="required-entry"
+                               data-validate="{required:true,'validate-greater-than-zero':true,'validate-number':true}"
+                               />
+                           <?php else: ?>
+                               <?php echo $this->priceFormat($value['proposed_price']); ?>
+                           <?php endif; ?>
                 </td>
                 <td>
                     <a href="<?php echo $this->_storeManager->getStore()->getBaseUrl() . "quotation/item/delete/id/{$value['item_id']}"; ?>" >
@@ -84,33 +97,36 @@ $quotation = $block->getQuotationDetails();
         <?php endforeach; ?>
 
         <tr>
-            <td colspan="5" align="left" style="padding-left: 554px;">
-                <b style="width:36%; display: inline-block;">Actual Price: </b> <?php //echo $this->priceFormat($quotation['quotation']['total_actual_price']);          ?>
+            <td colspan="5">
+                <?php
+                $comments = $this->getComments($quotationId);
+                foreach ($comments->getData() as $value) {
+                    echo 'Commented By ';
+                    echo ($value['commentted_by'] == 'c') ? 'You: ' : 'Admin: ';
+                    echo $value['comment'];
+                    echo '<br>';
+                }
+                ?>
+            </td>
+            <td colspan="5" align="left">
+                <b style="width:36%; display: inline-block;">Actual Price: </b> <?php echo $this->priceFormat($totalProductPrice); ?>
                 <br/>
-                <b style="width:36%; display: inline-block;">Proposed Price: </b> 
-
-                <?php /* if ($quotation['quotation']['quotation_status'] == 0 || $quotation['quotation']['quotation_status'] == 2): ?>
-                  <input type="hidden" name="quote_id"
-                  value="<?php echo ($quotation['quotation']['id']); ?>" style="width:30%"/>
-                  <input type="text" name="total_proposed_price"
-                  value="<?php echo ($quotation['quotation']['total_proposed_price']); ?>" style="width:30%"/>
-                  <?php /*else: ?>
-                  <?php echo $this->priceFormat($quotation['quotation']['total_proposed_price']); ?>
-                  <?php endif; */ ?>
-
+                <b style="width:36%; display: inline-block;">Proposed Price: </b>  <?php echo $this->priceFormat($totalProposedPrice); ?>
             </td>
         </tr>
         <tr>
             <td colspan="4" align="right">
-                <b>Comment: </b> 
-                <?php /* if ($quotation['quotation']['quotation_status'] == 0 || $quotation['quotation']['quotation_status'] == 2): ?>
-                  <textarea name='comment'></textarea>
-                  <?php endif; */ ?>
+                <?php if ($quotationStatus == 0 || $quotationStatus == 2): ?>
+                    <b>Comment: </b>
+                    <textarea name='comment'></textarea>
+                <?php endif; ?>
+                <input type="hidden" name="quotationid" value="<?php echo $quotationId; ?>"/>
             </td>
             <td>
-                <?php /* if (empty($quotation['quotation']['quotation_status'])  || $quotation['quotation']['quotation_status'] == 2): */ ?>
-                <input type="submit" name="submit_quotation" value="Submit" class="action primary"/>
-                <?php /* endif; */ ?>
+                <?php if ($quotationStatus == 7 || $quotationStatus == 2): ?>
+                    <button type="submit" name="submit_quotation" value="submit" class="action primary" onclick="return confirm('Once it is submitted you will not be able to change again. Are you sure..?')">Submit Quotation</button>
+                    <button type="submit" name="submit_quotation" value="update" class="action primary">Update Quotation</button>
+                <?php endif; ?>
             </td>
         </tr>
 
@@ -118,7 +134,7 @@ $quotation = $block->getQuotationDetails();
 </form>
 
 <script type="text/javascript">
-    
+
     require([
         'jquery',
         'mage/mage'
@@ -132,6 +148,10 @@ $quotation = $block->getQuotationDetails();
                     for (var i = f.elements.length; i--; )
                     {
                         var o = f.elements[i];
+
+                        if (o.type.toLowerCase() == "hidden") {
+                            continue;
+                        }
                         if (o.tagName.toLowerCase() == "input"
                                 && o.value == o.defaultValue
                                 && (!o.disabled || o.disabled.toLowerCase() == "disabled"))

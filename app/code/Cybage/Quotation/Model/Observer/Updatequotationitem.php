@@ -33,14 +33,16 @@ class Updatequotationitem implements ObserverInterface {
     private $_product;
     private $_productOption;
     private $_productOptionValue;
+    private $_itemLog;
 
-    public function __construct(\Cybage\Quotation\Model\Quotation $quotation, \Cybage\Quotation\Model\ResourceModel\QuotationItem\Collection $quotationItem, \Magento\Catalog\Model\Product $product, \Magento\Catalog\Model\Product\Option $productOption, \Magento\Catalog\Model\Product\Option\Value $productOptionValue
+    public function __construct(\Cybage\Quotation\Model\Quotation $quotation, \Cybage\Quotation\Model\ResourceModel\QuotationItem\Collection $quotationItem, \Magento\Catalog\Model\Product $product, \Magento\Catalog\Model\Product\Option $productOption, \Magento\Catalog\Model\Product\Option\Value $productOptionValue, \Cybage\Quotation\Model\QuotationItemLog $itemLog
     ) {
         $this->_quotation = $quotation;
         $this->_quotationItem = $quotationItem;
         $this->_product = $product;
         $this->_productOption = $productOption;
         $this->_productOptionValue = $productOptionValue;
+        $this->_itemLog = $itemLog;
     }
 
     public function execute(Observer $observer) {
@@ -79,6 +81,16 @@ class Updatequotationitem implements ObserverInterface {
                 $item->setSku($productDetails->getSku());
             }
             $item->setProductPrice($productPrice);
+
+            if ($item->getId()) {
+                $this->_itemLog
+                        ->setQuotationItemId($item->getId())
+                        ->setQty($qty)
+                        ->setProductPrice($productPrice)
+                        ->setProductPrice($productPrice)
+                        ->setProposedPrice($item->getProposedPrice())
+                        ->save();
+            }
         } catch (Exception $exc) {
             echo $exc->getTraceAsString();
         }

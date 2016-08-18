@@ -29,33 +29,44 @@ class Updatequotation implements ObserverInterface {
 
     private $_quotation;
     private $_quotationItem;
+    private $_quotationLog;
+    private $_request;
 
     public function __construct(
-    \Cybage\Quotation\Model\Quotation $quotation, \Cybage\Quotation\Model\QuotationItem $quotationItem
+    \Cybage\Quotation\Model\Quotation $quotation, \Cybage\Quotation\Model\QuotationItem $quotationItem, \Cybage\Quotation\Model\QuotationLog $quotationLog, \Magento\Framework\App\RequestInterface $request
     ) {
         $this->_quotation = $quotation;
         $this->_quotationItem = $quotationItem;
+        $this->_quotationLog = $quotationLog;
+        $this->_request = $request;
     }
 
     public function execute(Observer $observer) {
         try {
-            echo $quotationId = $observer->getId();
+            $data = $this->_request->getParams();
+            $quotationId = $observer->getId();
             $totalProductPrice = 0;
             $totalProposedPrice = 0;
             $this->_quotationItem->unsetData();
             $collection = $this->_quotationItem->getCollection()
-                    ->addFieldToFilter('quotation_id', array('eq'=>$quotationId));
-//            echo $collection->getSelect();
-//            echo '<pre>';
-//            print_r($collection->getData());
-//            echo '</pre>';
+                    ->addFieldToFilter('quotation_id', array('eq' => $quotationId));
             foreach ($collection as $value) {
                 $totalProductPrice += $value->getProductPrice();
                 $totalProposedPrice += $value->getProposedPrice();
             }
-            $this->_quotation->load($quotationId)
+            $quptation = $this->_quotation->load($quotationId);
+            $quptation->setTotalProductPrice($totalProductPrice);
+            $quptation->setTotalProposedPrice($totalProposedPrice);
+            if(isset($data['submit_quotation']) && $data['submit_quotation']=='submit'){
+              $quptation->setQuotationStatus(($quptation->getQuotationStatus()==7)?0:4);
+            }
+            $quptation->save();
+
+            $this->_quotationLog
+                    ->setQuotationId($quotationId)
                     ->setTotalProductPrice($totalProductPrice)
                     ->setTotalProposedPrice($totalProposedPrice)
+                    ->setDeliveryDate($this->_quotation->getDeliveryDate())
                     ->save();
         } catch (Exception $exc) {
             echo $exc->getTraceAsString();

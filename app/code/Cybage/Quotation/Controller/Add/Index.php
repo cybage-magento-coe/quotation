@@ -74,6 +74,7 @@ class Index extends \Magento\Customer\Controller\AbstractAccount {
                     $this->addQuotationItem();
                 }
                 $this->_managerinterface->addSuccess('Product successfully added to quotation');
+                $this->_event->dispatch('btob_quotation_item_update_after', array('id' => $this->_quotationId));
             } catch (Exception $exc) {
                 $this->_managerinterface->addError($exc->getMessage());
             }
@@ -142,42 +143,10 @@ class Index extends \Magento\Customer\Controller\AbstractAccount {
                         $options = array();
                         $options['bundle_option'] = $data['bundle_option'];
                         $options['bundle_option_qty'] = $data['bundle_option_qty'];
-//                        foreach ($data['bundle_option'] as $key => $value) {
-//                            $options[$value] = $data['bundle_option_qty'][$key];
-//                        }
                         $param['options'] = serialize($options);
                     }
                 }
-//                print_r($param);
-//                echo '<pre>';
-
                 $parentId = $this->saveQuotationItem($param);
-//                die();
-                /* Check for Simple Product end */
-
-
-
-                /* Check for Bundle Product */
-//                if (isset($data['bundle_option']) && isset($data['bundle_option_qty'])) {
-//                    $childProducts = $this->getSelectedChildProducts($data);
-//                    if (!empty($childProducts)) {
-//                        foreach ($childProducts as $key => $value) {
-//                            $childItem = $this->getQuotationItemId($data, $data['product'], $value);
-//                            $param = array();
-//                            if (!empty($childItem)) {
-//                                $param['qty'] = (int) $childItem['qty'] + ($data['bundle_option_qty'][$key]) * $data['qty'];
-//                                $param['id'] = $childItem['id'];
-//                            } else {
-//                                $param['productid'] = $value;
-//                                $param['qty'] = ($data['bundle_option_qty'][$key]) * $data['qty'];
-//                                $param['parentid'] = $parentId/* $data['product'] */;
-//                            }
-//                            $this->saveQuotationItem($param);
-//                            //$this->_event->dispatch('btob_quotation_', array('item' => $this->_quotationItem));
-//                        }
-//                    }
-//                }
-                /* Check for Bundle Product end */
 
                 /* check for grouped product */
                 if (isset($data['super_group']) && !empty($data['super_group'])) {

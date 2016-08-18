@@ -30,8 +30,20 @@ class Quotationdetails extends \Magento\Framework\View\Element\Template {
     protected $_resource;
     protected $_eavEntity;
     protected $_eavEntityAttribute;
+    protected $_quotationComment;
+    protected $_customer;
+    protected $_customerId;
 
-    public function __construct(\Magento\Framework\View\Element\Template\Context $context, array $data = array(), \Cybage\Quotation\Model\Quotation $quotation, \Cybage\Quotation\Model\ResourceModel\QuotationItem\Collection $quotationItem, \Magento\Framework\App\Action\Action $action, \Magento\Framework\App\ResourceConnection $resource, \Magento\Eav\Model\Entity $eavEntity, \Magento\Eav\Model\Entity\Attribute $eavEntityAttribute
+    public function __construct(\Magento\Framework\View\Element\Template\Context $context, array $data = array(), 
+            \Cybage\Quotation\Model\Quotation $quotation, 
+            \Cybage\Quotation\Model\ResourceModel\QuotationItem\Collection $quotationItem, 
+            \Magento\Framework\App\Action\Action $action, 
+            \Magento\Framework\App\ResourceConnection $resource, 
+            \Magento\Eav\Model\Entity $eavEntity, 
+            \Magento\Eav\Model\Entity\Attribute $eavEntityAttribute, 
+            \Cybage\Quotation\Model\ResourceModel\QuotationComment\Collection $quotationComment,
+            \Magento\Customer\Model\Session $customer
+            
     ) {
         $this->_quotation = $quotation;
         $this->_quotationItem = $quotationItem;
@@ -39,6 +51,9 @@ class Quotationdetails extends \Magento\Framework\View\Element\Template {
         $this->_resource = $resource;
         $this->_eavEntity = $eavEntity;
         $this->_eavEntityAttribute = $eavEntityAttribute;
+        $this->_quotationComment = $quotationComment;
+        $this->_customer = $customer;
+        $this->_customerId = $this->_customer->getCustomerId();
         parent::__construct($context, $data);
     }
 
@@ -53,13 +68,14 @@ class Quotationdetails extends \Magento\Framework\View\Element\Template {
         $prodNameAttrId = $this->_eavEntityAttribute
                 ->loadByCode($entityTypeId, 'name')
                 ->getAttributeId();
-        /*$prodSimageAttrId = $this->_eavEntityAttribute
-                ->loadByCode($entityTypeId, 'small_image')
-                ->getAttributeId();*/
+        /* $prodSimageAttrId = $this->_eavEntityAttribute
+          ->loadByCode($entityTypeId, 'small_image')
+          ->getAttributeId(); */
         $quotationId = $this->_action->getRequest()->getParam('id');
         $quotation = $this->_quotation
                 ->getCollection()
-                ->addFieldToFilter('main_table.id', $quotationId);
+                ->addFieldToFilter('main_table.id', $quotationId)
+                ->addFieldToFilter('main_table.customer_id', $this->_customerId);
         $quotation->getSelect()
                 ->join(array('item' => 'b2b_quotation_item'), 'item.quotation_id = main_table.id', array(
                     'id as item_id',
@@ -77,10 +93,26 @@ class Quotationdetails extends \Magento\Framework\View\Element\Template {
                 ->join(
                         array('cpev' => $productEntityVarcharTable), 'cpev.entity_id=product.entity_id AND cpev.attribute_id=' . $prodNameAttrId, array('name' => 'value')
                 )
-                /*->join(
-                        array('cpevI' => $productEntityVarcharTable), 'cpev.entity_id=product.entity_id AND cpev.attribute_id=' . $prodSimageAttrId, array('image' => 'value')
-        )*/;
+        /* ->join(
+          array('cpevI' => $productEntityVarcharTable), 'cpev.entity_id=product.entity_id AND cpev.attribute_id=' . $prodSimageAttrId, array('image' => 'value')
+          ) */;
         return $quotation->getData();
+    }
+
+    public function getComments($quotattionId = null) {
+        if ($quotattionId) {
+            $customerEntityTable = $this->_resource->getTableName('customer_entity');
+            $collection = $this->_quotationComment->addFieldToFilter('quotation_id', $quotattionId);
+            return $collection;
+        }
+    }
+    
+    public function isUpdateAllowed($quotationstatus = null){
+        $allowArray = [2,7];
+        if(in_array($quotationstatus, $allowArray)){
+            return true;
+        }
+        return false;
     }
 
 }
