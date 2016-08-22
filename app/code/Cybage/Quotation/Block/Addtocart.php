@@ -61,11 +61,18 @@ class Addtocart extends \Magento\Framework\View\TemplateEngine\Php {
                         return TRUE;
                     }
                     break;
+                case 'cart':
+                    //isQuoteAllowedFromCart
+                    if ($helper->isQuoteAllowedFromCart() && $this->customer->isLoggedIn()) {
+                        return TRUE;
+                    }
+                    break;
                 default :
                     return FALSE;
                     break;
             }
         }
+        return FALSE;
     }
 
     public function getAddToQuoteURL($product = null) {

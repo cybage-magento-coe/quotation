@@ -60,6 +60,9 @@ class Updatequotation implements ObserverInterface {
             if(isset($data['submit_quotation']) && $data['submit_quotation']=='submit'){
               $quptation->setQuotationStatus(($quptation->getQuotationStatus()==7)?0:4);
             }
+//            echo '<pre>';
+//            print_r($quptation->getData());
+//            echo '</pre>';
             $quptation->save();
 
             $this->_quotationLog

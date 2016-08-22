@@ -127,7 +127,10 @@ $quotationStatus = null;
                     <button type="submit" name="submit_quotation" value="submit" class="action primary" onclick="return confirm('Once it is submitted you will not be able to change again. Are you sure..?')">Submit Quotation</button>
                     <button type="submit" name="submit_quotation" value="update" class="action primary">Update Quotation</button>
                 <?php elseif ($quotationStatus == 1): ?>
-                    <button type="submit" name="convert_to_cart" value="update" class="action primary">Purchase Item(s)</button>
+                    <!--<button type="submit" name="convert_to_cart" value="update" class="action primary">Purchase Item(s)</button>-->
+                    <input type="submit" name="convert_to_cart" value="Purchase Item(s)" />
+                    <input id="tea-submit" type="submit" name="convert_to_cart" value="Tea">
+                    <input id="coffee-submit" type="submit" name="submit" value="Coffee">
                 <?php endif; ?>
             </td>
         </tr>
@@ -145,26 +148,26 @@ $quotationStatus = null;
         dataForm.mage('validation', {
             submitHandler: function (f)
             {
-                if (f && f.elements)
-                {
-                    for (var i = f.elements.length; i--; )
-                    {
-                        var o = f.elements[i];
-
-                        if (o.type.toLowerCase() == "hidden") {
-                            continue;
-                        }
-                        if (o.tagName.toLowerCase() == "input"
-                                && o.value == o.defaultValue
-                                && (!o.disabled || o.disabled.toLowerCase() == "disabled"))
-                        {
-                            if (!(o.disabled = true))
-                            {
-                                o.disabled = "disabled";
-                            }
-                        }
-                    }
-                }
+//                if (f && f.elements)
+//                {
+//                    for (var i = f.elements.length; i--; )
+//                    {
+//                        var o = f.elements[i];
+//
+//                        if (o.type.toLowerCase() == "hidden") {
+//                            continue;
+//                        }
+//                        if (o.tagName.toLowerCase() == "input"
+//                                && o.value == o.defaultValue
+//                                && (!o.disabled || o.disabled.toLowerCase() == "disabled"))
+//                        {
+//                            if (!(o.disabled = true))
+//                            {
+//                                o.disabled = "disabled";
+//                            }
+//                        }
+//                    }
+//                }
                 f.submit();
             }
         });

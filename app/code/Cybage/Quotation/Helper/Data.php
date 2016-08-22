@@ -109,8 +109,9 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper {
      * @param type $scopeCode
      * @return type bool
      */
-    public function isQuoteAllowedFromCart($scopeType = Config\ScopeConfigInterface::SCOPE_TYPE_DEFAULT, $scopeCode = null) {
-        return $this->scopeConfig(self::QUOT_SPNG_CRT, $scopeType, $scopeCode);
+    public function isQuoteAllowedFromCart() {
+        return $this->_scopeConfig->getValue(self::QUOT_SPNG_CRT, \Magento\Store\Model\ScopeInterface::SCOPE_STORE);
+//        return $this->scopeConfig(self::QUOT_SPNG_CRT, $scopeType, $scopeCode);
     }
 
     /**
