@@ -69,8 +69,9 @@ class Updatequotationitem implements ObserverInterface {
 
                 $opprice = $this->getConfigurableProductPrice($productDetails, $options);
                 $productPrice = $opprice * $qty;
-            } elseif ($productDetails->getTypeID() == 'bundle') {
+            }/**/ elseif ($productDetails->getTypeID() == 'bundle') {
                 $options = unserialize($item->getOptions());
+                
                 $opprice = $this->getBundleProductPrice($productDetails, $options);
                 $productPrice = $opprice * $qty;
             } else {
@@ -94,6 +95,10 @@ class Updatequotationitem implements ObserverInterface {
         } catch (Exception $exc) {
             echo $exc->getTraceAsString();
         }
+        $this->_product->unsetData();
+        $this->_productOption->unsetData();
+        $this->_productOptionValue->unsetData();
+        
     }
 
     /**
@@ -136,7 +141,7 @@ class Updatequotationitem implements ObserverInterface {
             $attributes = $product->getTypeInstance(true)->getConfigurableAttributes($product);
             $pricesByAttributeValues = array();
             $basePrice = $product->getFinalPrice();
-            $simple = $product->getTypeInstance()->getUsedProducts($product);
+            $simple = $product->getTypeInstance(true)->getUsedProducts($product);
             foreach ($simple as $sProduct) {
                 $totalPrice = $basePrice;
                 $confArray = array();
@@ -151,12 +156,14 @@ class Updatequotationitem implements ObserverInterface {
                     return $sProduct->getPrice();
                 }
             }
+            //$product->unsetTypeInstance();
         }
     }
 
     private function getBundleProductPrice($product = null, $options = null) {
         $price = 0;
         try {
+            
             $selections = $product->getTypeInstance(true)
                     ->getSelectionsCollection($product->getTypeInstance(true)
                     ->getOptionsIds($product), $product);
@@ -166,7 +173,7 @@ class Updatequotationitem implements ObserverInterface {
                     $price += $selection->getPrice() * $options['bundle_option_qty'][$selection->getOptionId()];
                 }
             }
-
+            //$product->unsetTypeInstance();
             return $price;
         } catch (Exception $exc) {
             echo $exc->getMessage();

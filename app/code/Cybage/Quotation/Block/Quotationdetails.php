@@ -68,9 +68,6 @@ class Quotationdetails extends \Magento\Framework\View\Element\Template {
         $prodNameAttrId = $this->_eavEntityAttribute
                 ->loadByCode($entityTypeId, 'name')
                 ->getAttributeId();
-        /* $prodSimageAttrId = $this->_eavEntityAttribute
-          ->loadByCode($entityTypeId, 'small_image')
-          ->getAttributeId(); */
         $quotationId = $this->_action->getRequest()->getParam('id');
         $quotation = $this->_quotation
                 ->getCollection()

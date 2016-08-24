@@ -29,4 +29,5 @@
         </arguments>
     </type>
     <preference for="Magento\Framework\View\TemplateEngine\Php" type="Cybage\Quotation\Block\Addtocart" />
+    <preference for="Magento\Catalog\Model\Product" type="Cybage\Quotation\Model\Product" />
 </config>

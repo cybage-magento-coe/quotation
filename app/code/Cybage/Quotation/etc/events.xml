@@ -20,12 +20,6 @@
 */
 -->
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:Event/etc/events.xsd">
-    <event name="btob_quotation_item_update_before">
-        <observer name="add_to_quotation" instance="Cybage\Quotation\Model\Observer\Updatequotationitem"  />
-    </event>
-    <event name="btob_quotation_item_update_after">
-        <observer name="update_quotation" instance="Cybage\Quotation\Model\Observer\Updatequotation"  />
-    </event>
     <event name="sales_order_place_after">
         <observer name="complete_quotation" instance="Cybage\Quotation\Model\Observer\Complete"  />
     </event>

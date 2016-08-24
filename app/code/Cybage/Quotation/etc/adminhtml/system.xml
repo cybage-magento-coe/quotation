@@ -38,12 +38,12 @@
                    type="text" sortOrder="5" showInDefault="1" showInWebsite="1" showInStore="1">
                 <label>Quotation Configuration</label>
                 <attribute type="expanded">1</attribute>
-                <field id="enable" 
+<!--                <field id="enable" 
                        translate="label comment" 
                        sortOrder="1" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Enabled</label>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-                </field>
+                </field>-->
                 <field id="quotation_from_catalog_page" 
                        translate="label" 
                        sortOrder="2" type="select" showInDefault="1" showInWebsite="1" showInStore="1">

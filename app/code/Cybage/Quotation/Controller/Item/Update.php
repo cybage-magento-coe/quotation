@@ -74,10 +74,6 @@ class Update extends \Magento\Customer\Controller\AbstractAccount {
         $resultRedirect = $this->resultFactory->create(ResultFactory::TYPE_REDIRECT);
         $data = $this->getRequest()->getParams();
         $setData = array();
-//        echo '<pre>';
-//        print_r($data);
-//        echo '</pre>';
-//        die();
         if (!empty($data) && !isset($data['convert_to_cart'])) {
             try {
                 foreach ($data as $key => $value) {

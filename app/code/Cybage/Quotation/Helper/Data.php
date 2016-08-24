@@ -44,6 +44,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper {
     const STATUS_ACC = '5';
     const STATUS_COM = '6';
     const STATUS_INT = '7';
+    const STATUS_EXP = '8';
 
     private $_scopeConfig;
     private $_quotationItem;
@@ -63,6 +64,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper {
             self::STATUS_ACC => 'Accepted',
             self::STATUS_COM => 'Complete',
             self::STATUS_INT => 'Intermediate',
+            self::STATUS_EXP => 'Expired',
         );
     }
 
@@ -120,12 +122,8 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper {
      * @param type $scopeCode
      * @return type int
      */
-    public function getQuotationLifeTime($scopeType = Config\ScopeConfigInterface::SCOPE_TYPE_DEFAULT, $scopeCode = null) {
-        if ($this->scopeConfig(self::QUOTE_LT, $scopeType, $scopeCode) > 0) {
-            return $this->scopeConfig(self::QUOTE_LT, $scopeType, $scopeCode);
-        } else {
-            return $this->scopeConfig(self::DEFAULT_LIFETINE, $scopeType, $scopeCode);
-        }
+    public function getQuotationLifeTime() {
+        return $this->_scopeConfig->getValue(self::QUOTE_LT, \Magento\Store\Model\ScopeInterface::SCOPE_STORE);
     }
     
     /**

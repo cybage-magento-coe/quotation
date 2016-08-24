@@ -7,8 +7,7 @@
  *
  * This source file is subject to the Open Software License (OSL 3.0)
  * It is available on the World Wide Web at:
- * htt
-  /**p://opensource.org/licenses/osl-3.0.php
+ * http://opensource.org/licenses/osl-3.0.php
  * If you are unable to access it on the World Wide Web, please send an email
  * To: Support_Magento@cybage.com.  We will send you a copy of the source file.
  *
@@ -20,13 +19,8 @@
  * @author     Cybage Software Pvt. Ltd. <Support_Magento@cybage.com>
  */
 
-namespace Cybage\Quotation\Controller\View;
+namespace Cybage\Quotation\Helper\Configurable;
 
-class Index extends \Magento\Customer\Controller\AbstractAccount {
-    
-    public function execute() {
-        $this->_view->loadLayout();
-        $this->_view->getLayout()->initMessages();
-        $this->_view->renderLayout();
-    }
+class Configuration extends \Magento\Catalog\Helper\Product\Configuration{
+    //put your code here
 }

@@ -50,27 +50,32 @@ class Updatequotation implements ObserverInterface {
             $this->_quotationItem->unsetData();
             $collection = $this->_quotationItem->getCollection()
                     ->addFieldToFilter('quotation_id', array('eq' => $quotationId));
-            foreach ($collection as $value) {
-                $totalProductPrice += $value->getProductPrice();
-                $totalProposedPrice += $value->getProposedPrice();
-            }
             $quptation = $this->_quotation->load($quotationId);
-            $quptation->setTotalProductPrice($totalProductPrice);
-            $quptation->setTotalProposedPrice($totalProposedPrice);
-            if(isset($data['submit_quotation']) && $data['submit_quotation']=='submit'){
-              $quptation->setQuotationStatus(($quptation->getQuotationStatus()==7)?0:4);
-            }
-//            echo '<pre>';
-//            print_r($quptation->getData());
-//            echo '</pre>';
-            $quptation->save();
+            if ($collection->count()) {
+                foreach ($collection as $value) {
+                    $totalProductPrice += $value->getProductPrice();
+                    $totalProposedPrice += $value->getProposedPrice();
+                }
 
-            $this->_quotationLog
-                    ->setQuotationId($quotationId)
-                    ->setTotalProductPrice($totalProductPrice)
-                    ->setTotalProposedPrice($totalProposedPrice)
-                    ->setDeliveryDate($this->_quotation->getDeliveryDate())
-                    ->save();
+                $quptation->setTotalProductPrice($totalProductPrice);
+                $quptation->setTotalProposedPrice($totalProposedPrice);
+                if (isset($data['submit_quotation']) && $data['submit_quotation'] == 'submit') {
+                    $quptation->setQuotationStatus(($quptation->getQuotationStatus() == 7) ? 0 : 4);
+                }
+                if (isset($data['delivery_date'])) {
+                    $quptation->setDeliveryDate($data['delivery_date']);
+                }
+                $quptation->save();
+
+                $this->_quotationLog
+                        ->setQuotationId($quotationId)
+                        ->setTotalProductPrice($totalProductPrice)
+                        ->setTotalProposedPrice($totalProposedPrice)
+                        ->setDeliveryDate($this->_quotation->getDeliveryDate())
+                        ->save();
+            } else {
+                $quptation->delete();
+            }
         } catch (Exception $exc) {
             echo $exc->getTraceAsString();
         }

@@ -10,6 +10,5 @@ class Productlist extends \Magento\Backend\Block\Widget{
     
     public function getList(){
         return $this->_coreRegistry->registry('quotation_details');
-        
     }
 }

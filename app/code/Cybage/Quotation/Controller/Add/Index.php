@@ -38,11 +38,7 @@ class Index extends \Magento\Customer\Controller\AbstractAccount {
     protected $_event;
 
     public function __construct(
-    \Magento\Framework\App\Action\Context $context, \Cybage\Quotation\Model\Quotation $quotation, 
-            \Magento\Customer\Model\Session $customer, \Cybage\Quotation\Model\QuotationItem $quotationItem, 
-            \Magento\Framework\Data\Form\FormKey\Validator $formKeyValidator, \Magento\Catalog\Model\Product $product, 
-            \Magento\ConfigurableProduct\Model\Product\Type\Configurable $configurableProduct, 
-            \Magento\Framework\Message\ManagerInterface $managerinterface, \Magento\Framework\Event\ManagerInterface $event
+    \Magento\Framework\App\Action\Context $context, \Cybage\Quotation\Model\Quotation $quotation, \Magento\Customer\Model\Session $customer, \Cybage\Quotation\Model\QuotationItem $quotationItem, \Magento\Framework\Data\Form\FormKey\Validator $formKeyValidator, \Magento\Catalog\Model\Product $product, \Magento\ConfigurableProduct\Model\Product\Type\Configurable $configurableProduct, \Magento\Framework\Message\ManagerInterface $managerinterface, \Magento\Framework\Event\ManagerInterface $event
     ) {
         $this->_quotation = $quotation;
         $this->_customer = $customer;
@@ -58,10 +54,10 @@ class Index extends \Magento\Customer\Controller\AbstractAccount {
 
     public function execute() {
         $data = $this->getRequest()->getParams();
-//        echo '<pre>';
-//        print_r($data);
-//        echo '</pre>';
-//        die();
+        echo '<pre>';
+        print_r($data);
+        echo '</pre>';
+        die();
         $resultRedirect = $this->resultFactory->create(ResultFactory::TYPE_REDIRECT);
         // Your code
 
@@ -94,7 +90,7 @@ class Index extends \Magento\Customer\Controller\AbstractAccount {
      * Check for active quotation for this user and return the ID
      * @return int
      */
-    private function activeQuotationId() {
+    public function activeQuotationId() {
         $collection = $this->_quotation->getCollection()
                 ->addFieldToFilter('customer_id', $this->_customerId)
                 ->addFieldToFilter('quotation_status', 7);
@@ -108,7 +104,7 @@ class Index extends \Magento\Customer\Controller\AbstractAccount {
     /**
      * Creates new Quotation and returns ID
      */
-    private function createQuotation() {
+    public function createQuotation() {
         $this->_quotation->setCustomerId($this->_customerId);
         $this->_quotation->setQuotationStatus(7);
         $this->_quotation->save();
@@ -118,12 +114,12 @@ class Index extends \Magento\Customer\Controller\AbstractAccount {
     /**
      * Add Item to Quotation 
      */
-    private function addQuotationItem() {
-        $data = $this->getRequest()->getParams();
-//        echo '<pre>';
-//        print_r($data);
-
-
+    public function addQuotationItem($param = null) {
+        if ($param) {
+            $data = $param;
+        } else {
+            $data = $this->getRequest()->getParams();
+        }
         if ($data['product']) {
             try {
                 /* Check for Simple Product */
@@ -150,6 +146,7 @@ class Index extends \Magento\Customer\Controller\AbstractAccount {
                         $param['options'] = serialize($options);
                     }
                 }
+
                 $parentId = $this->saveQuotationItem($param);
 
                 /* check for grouped product */
@@ -178,7 +175,7 @@ class Index extends \Magento\Customer\Controller\AbstractAccount {
     /**
      * insert/update records to quotation_item Table
      */
-    private function saveQuotationItem($param = null) {
+    public function saveQuotationItem($param = null) {
         $id = '';
         if ($param) {
             try {
@@ -220,9 +217,10 @@ class Index extends \Magento\Customer\Controller\AbstractAccount {
      * check whether Item is already added to Quotation if yes then returns details
      * @param type $pid
      */
-    private function getQuotationItemId($data = null, $parentId = false, $childId = false) {
+    public function getQuotationItemId($data = null, $parentId = false, $childId = false) {
         if (!empty($data)) {
             try {
+
                 $collection = $this->_quotationItem->getCollection()
                         ->addFieldToFilter('quotation_id', $this->_quotationId);
                 if ($parentId && $childId) {
@@ -230,8 +228,7 @@ class Index extends \Magento\Customer\Controller\AbstractAccount {
                     $collection->addFieldToFilter('parent_id', $parentId);
                     $collection->addFieldToFilter('product_id', $childId);
                 } else {
-                    $collection = $this->_quotationItem->getCollection()
-                            ->addFieldToFilter('product_id', $data['product']);
+                    $collection->addFieldToFilter('product_id', $data['product']);
                 }
                 if (isset($data['options'])) {
                     $collection->addFieldToFilter('options', serialize($data['options']));
@@ -255,7 +252,7 @@ class Index extends \Magento\Customer\Controller\AbstractAccount {
      * returns the array of child product ids
      * @param type $data
      */
-    private function getSelectedChildProducts($data = null) {
+    public function getSelectedChildProducts($data = null) {
         $child;
         $i = 1;
         try {

@@ -10,6 +10,7 @@
     <body>
         <referenceContainer name="content">
             <block class="Cybage\Quotation\Block\Adminhtml\Quotation\Productlist" name="cybage_quotation_productlist"/>
+            <block class="Cybage\Quotation\Block\Adminhtml\Quotation\Commentlist" name="cybage_quotation_commentlist"/>
             <block class="Cybage\Quotation\Block\Adminhtml\Quotation\Edit" name="cybage_quotation_edit"/>
         </referenceContainer>
     </body>

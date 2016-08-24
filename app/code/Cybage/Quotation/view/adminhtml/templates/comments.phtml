@@ -1,0 +1,33 @@
+<?php
+$commentList = $this->getList();
+?>
+
+
+<div class="admin__table-wrapper">
+    <h1>Comments</h1>
+    <?php if ($commentList->count()): ?>
+        <table class="data-table admin__table-primary edit-order-table">
+            <thead>
+                <tr class="headings">
+                    <th class="col-product"><span>Date</span></th>
+                    <th class="col-product"><span>Commented By</span></th>
+                    <th class="col-product"><span>Comment</span></th>
+    <!--                <th class="col-product"><span>Quantity</span></th>
+                    <th class="col-price-original"><span>Product Price</span></th>
+                    <th class="col-price"><span>Proposed Price</span></th>-->
+                </tr>
+            </thead>
+            <tbody class="even">
+                <?php foreach ($commentList as $value): ?> 
+                <tr>
+                    <td><?php echo $value->getCreatedAt(); ?></td>
+                    <td><?php echo ($value->getCommentedBy()=='a')?'Admin':'Customer'; ?></td>
+                    <td><?php echo $value->getComment(); ?></td>
+                </tr>
+                <?php endforeach; ?>  
+            </tbody>
+        </table>
+    <?php else: ?>
+        <h5>No Comment Found</h5>
+    <?php endif; ?>
+</div>
