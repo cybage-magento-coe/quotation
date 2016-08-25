@@ -47,9 +47,8 @@ class Addtocart extends \Magento\Framework\View\TemplateEngine\Php {
      * @param type $page
      * @return boolean
      */
-    public function showAddToQuote($page = 'list') {
+    public function showAddToQuote($page = 'list') {;
         $helper = $this->helper('\Cybage\Quotation\Helper\Data');
-        if ($helper->isActive()) {
             switch ($page) {
                 case 'list':
                     if ($helper->isQuoteAllowedFromCatalog() && $this->customer->isLoggedIn()) {
@@ -71,9 +70,8 @@ class Addtocart extends \Magento\Framework\View\TemplateEngine\Php {
                     return FALSE;
                     break;
             }
-        }
-        return FALSE;
-    }
+        return FALSE
+;    }
 
     public function getAddToQuoteURL($product = null) {
         if ($product) {
