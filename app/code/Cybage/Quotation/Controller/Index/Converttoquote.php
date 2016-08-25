@@ -26,42 +26,53 @@ use Magento\Framework\Controller\ResultFactory;
 
 class Converttoquote extends \Cybage\Quotation\Controller\Add\Index {
 
-    protected $_customer;
-    protected $_customerId;
+
     protected $_checkoutSession;
     protected $_quoteItem;
-    protected $_cart;
     protected $_productHelper;
     protected $_bundleConfiguration;
-    protected $_configurableConfiguration;
 
-    public function __construct(\Magento\Framework\App\Action\Context $context, \Cybage\Quotation\Model\Quotation $quotation, \Magento\Customer\Model\Session $customer, \Cybage\Quotation\Model\QuotationItem $quotationItem, \Magento\Framework\Data\Form\FormKey\Validator $formKeyValidator, \Magento\Catalog\Model\Product $product, \Magento\ConfigurableProduct\Model\Product\Type\Configurable $configurableProduct, \Magento\Framework\Message\ManagerInterface $managerinterface, \Magento\Framework\Event\ManagerInterface $event, \Magento\Customer\Model\Session $customer, \Magento\Checkout\Model\Session $checkoutSession, \Magento\Quote\Model\Quote\Item $quoteItem, \Magento\Checkout\Model\Cart $cart, \Cybage\Quotation\Helper\Configuration $productHelper, \Cybage\Quotation\Helper\Bundle\Configuration $bundleConfiguration, \Cybage\Quotation\Helper\Configurable\Configuration $configurableConfiguration
-    ) {
+//    public function __construct(\Magento\Framework\App\Action\Context $context, \Cybage\Quotation\Model\Quotation $quotation, \Magento\Customer\Model\Session $customer, \Cybage\Quotation\Model\QuotationItem $quotationItem, \Magento\Framework\Data\Form\FormKey\Validator $formKeyValidator, \Magento\Catalog\Model\Product $product, \Magento\ConfigurableProduct\Model\Product\Type\Configurable $configurableProduct, \Magento\Framework\Message\ManagerInterface $managerinterface, \Magento\Framework\Event\ManagerInterface $event, \Magento\Customer\Model\Session $customer, \Magento\Checkout\Model\Session $checkoutSession, \Magento\Quote\Model\Quote\Item $quoteItem, \Magento\Checkout\Model\Cart $cart, \Cybage\Quotation\Helper\Configuration $productHelper, \Cybage\Quotation\Helper\Bundle\Configuration $bundleConfiguration, \Cybage\Quotation\Helper\Configurable\Configuration $configurableConfiguration
+//    ) {
+//
+//        $this->_customer = $customer;
+//        $this->_customerId = $this->_customer->getCustomerId();
+//        $this->_checkoutSession = $checkoutSession;
+//        $this->_quoteItem = $quoteItem;
+//        $this->_cart = $cart;
+//        $this->_productHelper = $productHelper;
+//        $this->_bundleConfiguration = $bundleConfiguration;
+//        $this->_configurableConfiguration = $configurableConfiguration;
+//        parent::__construct($context, $quotation, $customer, $quotationItem, $formKeyValidator, $product, $configurableProduct, $managerinterface, $event);
+//    }
 
-        $this->_customer = $customer;
-        $this->_customerId = $this->_customer->getCustomerId();
+    public function __construct(\Magento\Framework\App\Action\Context $context, 
+            \Cybage\Quotation\Model\Quotation $quotation, 
+            \Magento\Customer\Model\Session $customer, 
+            \Cybage\Quotation\Model\QuotationItem $quotationItem, 
+            \Magento\Framework\Data\Form\FormKey\Validator $formKeyValidator, 
+            \Magento\Catalog\Model\Product $product, 
+            \Magento\ConfigurableProduct\Model\Product\Type\Configurable $configurableProduct, 
+            \Magento\Framework\Message\ManagerInterface $managerinterface, 
+            \Magento\Framework\Event\ManagerInterface $event, 
+            \Cybage\Quotation\Helper\Data $data,
+            \Magento\Checkout\Model\Session $checkoutSession, 
+            \Magento\Quote\Model\Quote\Item $quoteItem,
+            \Cybage\Quotation\Helper\Configuration $productHelper,
+            \Cybage\Quotation\Helper\Bundle\Configuration $bundleConfiguration
+            ) {
         $this->_checkoutSession = $checkoutSession;
         $this->_quoteItem = $quoteItem;
-        $this->_cart = $cart;
         $this->_productHelper = $productHelper;
         $this->_bundleConfiguration = $bundleConfiguration;
-        $this->_configurableConfiguration = $configurableConfiguration;
-        parent::__construct($context, $quotation, $customer, $quotationItem, $formKeyValidator, $product, $configurableProduct, $managerinterface, $event);
+        parent::__construct($context, $quotation, $customer, $quotationItem, $formKeyValidator, $product, $configurableProduct, $managerinterface, $event, $data);
     }
-
-//    public function execute() {
-//        $this->deleteQuoteItems();
-//    }
     public function execute() {
         //$data = $this->getRequest()->getParams();
         $resultRedirect = $this->resultFactory->create(ResultFactory::TYPE_REDIRECT);
         // Your code
 
         $products = $this->deleteQuoteItems();
-//          echo '<pre>';
-//        print_r($products);
-//        echo '</pre>';
-//        die();
         try {
             $this->_quotationId = $this->activeQuotationId();
             if (!$this->_quotationId) {
@@ -118,6 +129,7 @@ class Converttoquote extends \Cybage\Quotation\Controller\Add\Index {
             $products[$i]['qty'] = $item->getQty();
 
             $i++;
+            $this->_quoteItem->load($item->getItemId())->delete();
         }
         
         return $products;

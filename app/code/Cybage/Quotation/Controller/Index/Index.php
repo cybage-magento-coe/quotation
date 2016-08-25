@@ -22,12 +22,33 @@
 
 namespace Cybage\Quotation\Controller\Index;
 
+use Magento\Framework\Controller\ResultFactory;
+
 class Index extends \Magento\Customer\Controller\AbstractAccount {
-    
+
+    protected $_quotationHelper;
+    protected $_managerinterface;
+
+    public function __construct(
+    \Magento\Framework\App\Action\Context $context, \Cybage\Quotation\Helper\Data $data, 
+            \Magento\Framework\Message\ManagerInterface $managerinterface
+    ) {
+        $this->_quotationHelper = $data;
+        $this->_managerinterface = $managerinterface;
+        parent::__construct($context);
+    }
+
     public function execute() {
-        $this->_view->loadLayout();
-        $this->_view->getLayout()->initMessages();
-        $this->_view->renderLayout();
+        $resultRedirect = $this->resultFactory->create(ResultFactory::TYPE_REDIRECT);
+        if ($this->_quotationHelper->isActive()) {
+            $this->_view->loadLayout();
+            $this->_view->getLayout()->initMessages();
+            $this->_view->renderLayout();
+        } else {
+            $this->_managerinterface->addError('This functionality is not available now');
+            $resultRedirect->setPath('customer/account/');
+            return $resultRedirect;
+        }
     }
 
 }

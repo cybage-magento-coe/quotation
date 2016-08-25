@@ -36,9 +36,19 @@ class Index extends \Magento\Customer\Controller\AbstractAccount {
     protected $_configurableProduct;
     protected $_managerinterface;
     protected $_event;
+    protected $_quotationHelper;
 
     public function __construct(
-    \Magento\Framework\App\Action\Context $context, \Cybage\Quotation\Model\Quotation $quotation, \Magento\Customer\Model\Session $customer, \Cybage\Quotation\Model\QuotationItem $quotationItem, \Magento\Framework\Data\Form\FormKey\Validator $formKeyValidator, \Magento\Catalog\Model\Product $product, \Magento\ConfigurableProduct\Model\Product\Type\Configurable $configurableProduct, \Magento\Framework\Message\ManagerInterface $managerinterface, \Magento\Framework\Event\ManagerInterface $event
+    \Magento\Framework\App\Action\Context $context, 
+            \Cybage\Quotation\Model\Quotation $quotation, 
+            \Magento\Customer\Model\Session $customer, 
+            \Cybage\Quotation\Model\QuotationItem $quotationItem, 
+            \Magento\Framework\Data\Form\FormKey\Validator $formKeyValidator, 
+            \Magento\Catalog\Model\Product $product, 
+            \Magento\ConfigurableProduct\Model\Product\Type\Configurable $configurableProduct,
+            \Magento\Framework\Message\ManagerInterface $managerinterface, 
+            \Magento\Framework\Event\ManagerInterface $event,
+            \Cybage\Quotation\Helper\Data $data
     ) {
         $this->_quotation = $quotation;
         $this->_customer = $customer;
@@ -49,22 +59,19 @@ class Index extends \Magento\Customer\Controller\AbstractAccount {
         $this->_configurableProduct = $configurableProduct;
         $this->_managerinterface = $managerinterface;
         $this->_event = $event;
+        $this->_quotationHelper = $data;
         parent::__construct($context);
     }
 
     public function execute() {
         $data = $this->getRequest()->getParams();
-        echo '<pre>';
-        print_r($data);
-        echo '</pre>';
-        die();
         $resultRedirect = $this->resultFactory->create(ResultFactory::TYPE_REDIRECT);
         // Your code
 
         if (!$this->_formKeyValidator->validate($this->getRequest())) {
             return $this->resultRedirectFactory->create()->setPath('*/*/');
         }
-        if (!empty($data)) {
+        if (!empty($data) && $this->_quotationHelper->isActive()) {
             try {
                 $this->_quotationId = $this->activeQuotationId();
                 if (!$this->_quotationId) {
@@ -81,6 +88,7 @@ class Index extends \Magento\Customer\Controller\AbstractAccount {
             $resultRedirect->setPath('quotation/view/index', array('id' => $this->_quotationId));
             return $resultRedirect;
         } else {
+            $this->_managerinterface->addError('This functionality is not available now');
             $resultRedirect->setPath('customer/account/');
             return $resultRedirect;
         }
