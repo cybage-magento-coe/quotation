@@ -84,11 +84,7 @@ $_helper = $this->helper('Magento\Catalog\Helper\Output');
                                             <input type="hidden" class='add_to_quote' id="add_to_quote_<?php /* @escapeNotVerified */ echo $postParams['data']['product']; ?>" name="add_to_quote"  value="0">
                                             <?php echo $block->getBlockHtml('formkey') ?>
 
-                                            <?php if ($this->showAddToQuote()): ?>
-                                                <a title="<?php echo $block->escapeHtml(__('Add to Quote')); ?>" href="<?php echo $this->getAddToQuoteURL($_product) ?>">
-                                                    <?php echo $block->escapeHtml(__('Add to Quote')); ?>
-                                                </a>
-                                            <?php endif; ?>
+                                      
                                             <button type="submit"
                                                     title="<?php echo $block->escapeHtml(__('Add to Cart')); ?>"
                                                     class="action tocart primary">
@@ -127,6 +123,11 @@ $_helper = $this->helper('Magento\Catalog\Helper\Output');
                                         <span><?php /* @escapeNotVerified */ echo __('Add to Compare') ?></span>
                                     </a>
                                 </div>
+								      <?php if ($this->showAddToQuote()): ?>
+                                                <a class="action tocart primary addtoquote" title="<?php echo $block->escapeHtml(__('Add to Quote')); ?>" href="<?php echo $this->getAddToQuoteURL($_product) ?>">
+                                                    <?php echo $block->escapeHtml(__('Add to Quote')); ?>
+                                                </a>
+                                            <?php endif; ?>
                             </div>
                             <?php if ($showDescription): ?>
                                 <div class="product description product-item-description">

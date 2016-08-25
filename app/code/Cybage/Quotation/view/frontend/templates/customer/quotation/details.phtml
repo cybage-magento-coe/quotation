@@ -27,27 +27,33 @@ $quotationStatus = null;
 <form action="<?php echo $this->_storeManager->getStore()->getBaseUrl() . "quotation/item/update"; ?>" 
       id="update_quotation_form" method="post">
     <input name="form_key" type="hidden" value="<?php echo $this->getFrmKey() ?>" />
-    <table border="1" width="100%">
+	<div class="table-wrapper">
+    <table width="100%" class="data table quotation-details">
+
+	
+		<thead>
         <tr>
-            <th width="20%">
+            <th class="col title">
                 <b><?php echo __('Product Image'); ?></b>
             </th>
-            <th width="20%">
+            <th class="col title">
                 <b><?php echo __('Product Name'); ?></b>
             </th>
-            <th width="20%">
+            <th class="col title">
                 <b><?php echo __('Quantity'); ?></b>
             </th>
-            <th width="20%">
+            <th class="col title">
                 <b><?php echo __('Price'); ?></b>
             </th>
-            <th width="20%">
+            <th class="col title">
                 <b><?php echo __('Proposed Price'); ?></b>
             </th>
-            <th width="20%">
+            <th width="30%" class="col action">
                 <b><?php echo __('Action'); ?></b>
             </th>
         </tr>
+		</thead>
+		<tbody>
         <?php foreach ($quotation as $key => $value) : ?>
             <?php
             $totalProductPrice = $value['total_product_price'];
@@ -57,13 +63,13 @@ $quotationStatus = null;
             $deliveryDate = $value['delivery_date'];
             ?>
             <tr>
-                <td>
+                <td  class="col title">
                     <img  src="<?php //echo $this->_storeManager->getStore()->getBaseUrl(\Magento\Framework\UrlInterface::URL_TYPE_MEDIA) . 'catalog/product' . $value['product']['thumbnail'];                   ?>" width="50"/>
                 </td>
-                <td>
+                <td class="col title">
                     <?php echo $value['name'] ?>
                 </td>
-                <td>
+                <td class="col title">
                     <?php if ($this->isUpdateAllowed($quotationStatus)): ?>
                         <input type="text" 
                                name="qty_<?php echo $value['item_id'] ?>" 
@@ -74,10 +80,10 @@ $quotationStatus = null;
                                <?php echo $value['qty'] ?>
                            <?php endif; ?>
                 </td>
-                <td>
+                <td class="col title">
                     <?php echo $this->priceFormat($value['product_price']); ?>
                 </td>
-                <td>
+                <td class="col title">
                     <?php if ($this->isUpdateAllowed($quotationStatus)): ?>
                         <input type="text" 
                                name="proposed_price_<?php echo $value['item_id'] ?>" 
@@ -89,7 +95,7 @@ $quotationStatus = null;
                                <?php echo $this->priceFormat($value['proposed_price']); ?>
                            <?php endif; ?>
                 </td>
-                <td>
+                <td class="col title">
                     <a href="<?php echo $this->_storeManager->getStore()->getBaseUrl() . "quotation/item/delete/id/{$value['item_id']}"; ?>" >
                         Remove
                     </a>
@@ -98,7 +104,7 @@ $quotationStatus = null;
         <?php endforeach; ?>
 
         <tr>
-            <td colspan="5">
+            <td colspan="5" class="col title">
                 <?php
                 $comments = $this->getComments($quotationId);
                 foreach ($comments->getData() as $value) {
@@ -109,21 +115,21 @@ $quotationStatus = null;
                 }
                 ?>
             </td>
-            <td colspan="5" align="left">
+            <td colspan="5" align="left" class="col title">
                 <b style="width:36%; display: inline-block;">Actual Price: </b> <?php echo $this->priceFormat($totalProductPrice); ?>
                 <br/>
                 <b style="width:36%; display: inline-block;">Proposed Price: </b>  <?php echo $this->priceFormat($totalProposedPrice); ?>
             </td>
         </tr>
         <tr>
-            <td colspan="4" align="right">
+            <td colspan="5" align="right" class="col title">
                 <?php if ($quotationStatus == 0 || $quotationStatus == 2): ?>
                     <b>Comment: </b>
                     <textarea name='comment'></textarea>
                 <?php endif; ?>
                 <input type="hidden" name="quotationid" value="<?php echo $quotationId; ?>"/>
             </td>
-            <td>
+            <td class="col action">
                 <?php if ($quotationStatus == 7 || $quotationStatus == 2): ?>
                     <label>Select Delivery Date</label>
                     <input type="text" class="input-text required-entry" id="calendar_inputField" name="delivery_date" aria-required="true" value="<?php echo $deliveryDate; ?>">
@@ -141,8 +147,9 @@ $quotationStatus = null;
 
             </td>
         </tr>
-
+	</tbody>
     </table>
+	</div>
 </form>
 
 <script type="text/javascript">
