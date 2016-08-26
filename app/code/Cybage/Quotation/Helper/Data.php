@@ -35,6 +35,10 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper {
     const QUOT_SER_RES = 'quotation_configuration/general/quotation_from_search_result'; // QUOTEATION FROM SEARCH RESULT PAGE
     const QUOT_SPNG_CRT = 'quotation_configuration/general/quotation_from_shopping_cart'; // QUOTATION FROM SHOPPING CART
     const QUOTE_LT = 'quotation_configuration/general/quotation_lifetime'; //QUOTATION LIFETIME IN DAYS
+    const EMAIL_TEMPLATE_CUSTOMER = 'quotation_configuration/general/quotation_email_customer'; //CUSTOMER EMAIL TEMPLATE
+    const EMAIL_TEMPLATE_ADMIN = 'quotation_configuration/general/quotation_email_admin'; //ADMIN EMAIL TEMPLATE
+    const ADMIN_NAME = 'quotation_configuration/general/quotation_name'; //ADMIN NAME
+    const ADMIN_EMAIL = 'quotation_configuration/general/quotation_admin_email'; //ADMIN EMAIL
     const DEFAULT_LIFETINE = 7; // DEFAULT QUOTATION LIFETIME
     const STATUS_REQ = '0';
     const STATUS_APP = '1';
@@ -48,9 +52,45 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper {
 
     private $_scopeConfig;
     private $_quotationItem;
-    public function __construct(Context $context, \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig, \Cybage\Quotation\Model\QuotationItem $quotationitem ) {
+
+    const XML_PATH_EMAIL_TEMPLATE_FIELD = 'section/group/your_email_template_field_id';
+
+    /* Here section and group refer to name of section and group where you create this field in configuration */
+
+    /**
+     * @var \Magento\Framework\App\Config\ScopeConfigInterface
+     */
+    //protected $_scopeConfig;
+
+    /**
+     * Store manager
+     *
+     * @var \Magento\Store\Model\StoreManagerInterface
+     */
+    protected $_storeManager;
+
+    /**
+     * @var \Magento\Framework\Translate\Inline\StateInterface
+     */
+    protected $inlineTranslation;
+
+    /**
+     * @var \Magento\Framework\Mail\Template\TransportBuilder
+     */
+    protected $_transportBuilder;
+
+    /**
+     * @var string
+     */
+    protected $temp_id;
+
+    public function __construct(Context $context, \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig, \Cybage\Quotation\Model\QuotationItem $quotationitem, \Magento\Store\Model\StoreManagerInterface $storeManager, \Magento\Framework\Translate\Inline\StateInterface $inlineTranslation, \Magento\Framework\Mail\Template\TransportBuilder $transportBuilder
+    ) {
         $this->_scopeConfig = $scopeConfig;
         $this->_quotationItem = $quotationitem;
+        $this->_storeManager = $storeManager;
+        $this->inlineTranslation = $inlineTranslation;
+        $this->_transportBuilder = $transportBuilder;
         parent::__construct($context);
     }
 
@@ -70,7 +110,6 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper {
 
     public function getQuotationStatus($status) {
         $array = $this->getQuotationStatusArray();
-
         return $array[$status];
     }
 
@@ -92,7 +131,6 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper {
      */
     public function isQuoteAllowedFromCatalog() {
         return $this->_scopeConfig->getValue(self::QUOT_CAT_PAGE, \Magento\Store\Model\ScopeInterface::SCOPE_STORE);
-        //return $this->scopeConfig(self::QUOT_CAT_PAGE, $scopeType, $scopeCode);
     }
 
     /**
@@ -113,7 +151,6 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper {
      */
     public function isQuoteAllowedFromCart() {
         return $this->_scopeConfig->getValue(self::QUOT_SPNG_CRT, \Magento\Store\Model\ScopeInterface::SCOPE_STORE);
-//        return $this->scopeConfig(self::QUOT_SPNG_CRT, $scopeType, $scopeCode);
     }
 
     /**
@@ -125,18 +162,135 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper {
     public function getQuotationLifeTime() {
         return $this->_scopeConfig->getValue(self::QUOTE_LT, \Magento\Store\Model\ScopeInterface::SCOPE_STORE);
     }
-    
+
+    /**
+     * Return customer email template
+     * @param type $scopeType
+     * @param type $scopeCode
+     * @return type int
+     */
+    public function getEmailTemplateCustomer() {
+        return $this->_scopeConfig->getValue(self::EMAIL_TEMPLATE_CUSTOMER, \Magento\Store\Model\ScopeInterface::SCOPE_STORE);
+    }
+
+    /**
+     * Return admin email template
+     * @param type $scopeType
+     * @param type $scopeCode
+     * @return type int
+     */
+    public function getEmailTemplateAdmin() {
+        return $this->_scopeConfig->getValue(self::ADMIN_EMAIL, \Magento\Store\Model\ScopeInterface::SCOPE_STORE);
+    }
+
+    /**
+     * Return admin email id
+     * @param type $scopeType
+     * @param type $scopeCode
+     * @return type int
+     */
+    public function getAdminEmail() {
+        return $this->_scopeConfig->getValue(self::EMAIL_TEMPLATE_ADMIN, \Magento\Store\Model\ScopeInterface::SCOPE_STORE);
+    }
+
+    /**
+     * Return admin email id
+     * @param type $scopeType
+     * @param type $scopeCode
+     * @return type int
+     */
+    public function getAdminName() {
+        return $this->_scopeConfig->getValue(self::ADMIN_NAME, \Magento\Store\Model\ScopeInterface::SCOPE_STORE);
+    }
+
     /**
      * returns the quotation Id based on params
      * @param type $param
      */
-    
-    public function getQuotationId($param = array()){
-        if(isset($param['item_id'])){
-            return $this->_quotationItem->load((int)$param['item_id'])->getQuotationId();
+    public function getQuotationId($param = array()) {
+        if (isset($param['item_id'])) {
+            return $this->_quotationItem->load((int) $param['item_id'])->getQuotationId();
         }
-        
+
         return;
+    }
+
+    /**
+     * [sendInvoicedOrderEmail description]                  
+     * @param  Mixed $emailTemplateVariables 
+     * @param  Mixed $senderInfo             
+     * @param  Mixed $receiverInfo           
+     * @return void
+     */
+    /* your send mail method */
+    public function sendMail($emailTemplateVariables, $senderInfo, $receiverInfo, $sendToCustomer = true) {
+        try {
+            if ($sendToCustomer) {
+                $this->temp_id = $this->getEmailTemplateCustomer();
+            } else {
+                $this->temp_id = $this->getEmailTemplateAdmin();
+            }
+            $this->inlineTranslation->suspend();
+            $this->generateTemplate($emailTemplateVariables, $senderInfo, $receiverInfo);
+            $transport = $this->_transportBuilder->getTransport();
+            $transport->sendMessage();
+            $this->inlineTranslation->resume();
+        } catch (Exception $exc) {
+            echo $exc->getTraceAsString();
+        }
+    }
+
+    /**
+     * Return store configuration value of your template field that which id you set for template
+     *
+     * @param string $path
+     * @param int $storeId
+     * @return mixed
+     */
+    protected function getConfigValue($path, $storeId) {
+        return $this->scopeConfig->getValue(
+                        $path, \Magento\Store\Model\ScopeInterface::SCOPE_STORE, $storeId
+        );
+    }
+
+    /**
+     * Return store 
+     *
+     * @return Store
+     */
+    public function getStore() {
+        return $this->_storeManager->getStore();
+    }
+
+    /**
+     * Return template id according to store
+     *
+     * @return mixed
+     */
+    public function getTemplateId($xmlPath) {
+        return $this->getConfigValue($xmlPath, $this->getStore()->getStoreId());
+    }
+
+    /**
+     * [generateTemplate description]  with template file and tempaltes variables values                
+     * @param  Mixed $emailTemplateVariables 
+     * @param  Mixed $senderInfo             
+     * @param  Mixed $receiverInfo           
+     * @return void
+     */
+    public function generateTemplate($emailTemplateVariables, $senderInfo, $receiverInfo) {
+        $template = $this->_transportBuilder->setTemplateIdentifier($this->temp_id)
+                ->setTemplateOptions(
+                        [
+                            'area' => \Magento\Framework\App\Area::AREA_FRONTEND, /* here you can defile area and
+                              store of template for which you prepare it */
+                            'store' => $this->_storeManager->getStore()->getId(),
+                        ]
+                )
+                ->setTemplateVars($emailTemplateVariables)
+                ->setFrom($senderInfo)
+                ->addTo($receiverInfo['email'], $receiverInfo['name']);
+        return $this;
     }
 
 }

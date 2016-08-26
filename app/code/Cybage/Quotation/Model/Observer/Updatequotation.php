@@ -31,14 +31,23 @@ class Updatequotation implements ObserverInterface {
     private $_quotationItem;
     private $_quotationLog;
     private $_request;
+    private $_customerCollection;
+    private $_quotationHelper;
 
     public function __construct(
-    \Cybage\Quotation\Model\Quotation $quotation, \Cybage\Quotation\Model\QuotationItem $quotationItem, \Cybage\Quotation\Model\QuotationLog $quotationLog, \Magento\Framework\App\RequestInterface $request
+    \Cybage\Quotation\Model\Quotation $quotation, 
+            \Cybage\Quotation\Model\QuotationItem $quotationItem, 
+            \Cybage\Quotation\Model\QuotationLog $quotationLog, 
+            \Magento\Framework\App\RequestInterface $request,
+            \Magento\Customer\Model\ResourceModel\Customer\Collection $customerCollection,
+            \Cybage\Quotation\Helper\Data $quotationHelper
     ) {
         $this->_quotation = $quotation;
         $this->_quotationItem = $quotationItem;
         $this->_quotationLog = $quotationLog;
         $this->_request = $request;
+        $this->_customerCollection = $customerCollection;
+        $this->_quotationHelper = $quotationHelper;
     }
 
     public function execute(Observer $observer) {
@@ -50,22 +59,23 @@ class Updatequotation implements ObserverInterface {
             $this->_quotationItem->unsetData();
             $collection = $this->_quotationItem->getCollection()
                     ->addFieldToFilter('quotation_id', array('eq' => $quotationId));
-            $quptation = $this->_quotation->load($quotationId);
+            $quotation = $this->_quotation->load($quotationId);
             if ($collection->count()) {
                 foreach ($collection as $value) {
                     $totalProductPrice += $value->getProductPrice();
                     $totalProposedPrice += $value->getProposedPrice();
                 }
 
-                $quptation->setTotalProductPrice($totalProductPrice);
-                $quptation->setTotalProposedPrice($totalProposedPrice);
+                $quotation->setTotalProductPrice($totalProductPrice);
+                $quotation->setTotalProposedPrice($totalProposedPrice);
                 if (isset($data['submit_quotation']) && $data['submit_quotation'] == 'submit') {
-                    $quptation->setQuotationStatus(($quptation->getQuotationStatus() == 7) ? 0 : 4);
+                    $quotation->setQuotationStatus(($quotation->getQuotationStatus() == 7) ? 0 : 4);
+                    $this->sendEmail($quotation);
                 }
                 if (isset($data['delivery_date'])) {
-                    $quptation->setDeliveryDate($data['delivery_date']);
+                    $quotation->setDeliveryDate($data['delivery_date']);
                 }
-                $quptation->save();
+                $quotation->save();
 
                 $this->_quotationLog
                         ->setQuotationId($quotationId)
@@ -74,11 +84,45 @@ class Updatequotation implements ObserverInterface {
                         ->setDeliveryDate($this->_quotation->getDeliveryDate())
                         ->save();
             } else {
-                $quptation->delete();
+                $quotation->delete();
             }
         } catch (Exception $exc) {
             echo $exc->getTraceAsString();
         }
+    }
+
+    public function sendEmail($quotation) {
+        $customerId = $quotation->getCustomerId();
+        $customer = $this->_customerCollection->addAttributeToFilter('entity_id',$customerId)->getFirstItem();
+
+
+        /* Receiver Detail  */
+        $receiverInfo = [
+            'name' => $customer->getFirstname().' '.$customer->getLastname(),
+            'email' => $customer->getEmail(),
+        ];
+
+
+        /* Sender Detail  */
+        $senderInfo = [
+            'name' => 'Admin',
+            'email' => 'admin@website.com',
+        ];
+
+
+        /* Assign values for your template variables  */
+        //$statusArray = $this->_quotationHelper->getQuotationStatus($status);
+        $emailTemplateVariables = array();
+        $emailTempVariables['customer_name'] = $customer->getFirstname().' '.$customer->getLastname();
+        $emailTempVariables['quotation_status'] = $this->_quotationHelper->getQuotationStatus($quotation->getQuotationStatus());
+
+        /* We write send mail function in helper because if we want to 
+          use same in other action then we can call it directly from helper */
+
+        /* call send mail method from helper or where you define it */
+        $this->_quotationHelper->sendMail(
+                $emailTempVariables, $senderInfo, $receiverInfo,true
+        );
     }
 
 }

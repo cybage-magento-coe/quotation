@@ -63,11 +63,23 @@
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                 </field>
                 
-                <field id="quotation_lifetime" 
+                <field id="quotation_name" 
                        translate="label" 
                        sortOrder="5" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Quotation Lifetime (Days)</label>
                     <validate>validate-digits</validate>
+                </field>
+                <field id="quotation_admin_email" 
+                       translate="label" 
+                       sortOrder="5" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Admin Email</label>
+                    <validate>validate-email validate-no-empty</validate>
+                </field>
+                <field id="quotation_admin_name" 
+                       translate="label" 
+                       sortOrder="5" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Admin Name</label>
+                    <validate>validate-no-empty</validate>
                 </field>
                 <field id="quotation_email_customer" translate="label comment" 
                        type="select" sortOrder="6" showInDefault="1" showInWebsite="1" showInStore="1">

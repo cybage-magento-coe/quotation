@@ -32,11 +32,12 @@ class Product extends \Magento\Catalog\Model\Product{
      */
     public function getTypeInstance($check=false)
     {
-        if ($this->_typeInstance === null && !$check) {
+        if($check){
             $this->_typeInstance = $this->_catalogProductType->factory($this);
-        }elseif($check){
+        }elseif($this->_typeInstance === null){
             $this->_typeInstance = $this->_catalogProductType->factory($this);
         }
+        
         return $this->_typeInstance;
     }
 }
