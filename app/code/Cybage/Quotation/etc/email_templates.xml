@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Email:etc/email_templates.xsd">
+    <template id="quotation_configuration_general_quotation_email_customer" 
+              label="Quotation email to customer" 
+              file="email_template_customer.html" 
+              type="html" module="Cybage_Quotation" 
+              area="frontend"/>
+    <template id="quotation_configuration_general_quotation_email_admin" 
+              label="Quotation email to admin" 
+              file="email_template_customer.html" 
+              type="html" module="Cybage_Quotation" 
+              area="frontend"/>
+</config>

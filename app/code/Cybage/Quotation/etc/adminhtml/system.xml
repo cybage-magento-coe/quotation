@@ -50,7 +50,7 @@
                     <label>Allow Quotation from Catalog Page</label>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                 </field>
-<!--                <field id="quotation_from_search_result" 
+                <!--                <field id="quotation_from_search_result" 
                        translate="label" 
                        sortOrder="3" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Allow Quotation from Search Result Page</label>
@@ -69,7 +69,16 @@
                     <label>Quotation Lifetime (Days)</label>
                     <validate>validate-digits</validate>
                 </field>
-                
+                <field id="quotation_email_customer" translate="label comment" 
+                       type="select" sortOrder="6" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Customer Email Template</label>
+                    <source_model>Magento\Config\Model\Config\Source\Email\Template</source_model>
+                </field>
+                <field id="quotation_email_admin" translate="label comment" 
+                       type="select" sortOrder="6" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Admin Email Template</label>
+                    <source_model>Magento\Config\Model\Config\Source\Email\Template</source_model>
+                </field>
             </group>
         </section>
     </system>
