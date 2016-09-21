@@ -18,7 +18,5 @@
  * @author     Cybage Software Pvt. Ltd. <Support_Magento@cybage.com>
  */
 \Magento\Framework\Component\ComponentRegistrar::register(
-    \Magento\Framework\Component\ComponentRegistrar::MODULE,
-    'Cybage_Quotation',
-    __DIR__
+        \Magento\Framework\Component\ComponentRegistrar::MODULE, 'Cybage_Quotation', __DIR__
 );

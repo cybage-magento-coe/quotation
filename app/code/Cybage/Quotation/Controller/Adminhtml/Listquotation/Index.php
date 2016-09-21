@@ -6,24 +6,19 @@ use Magento\Framework\View\Result\PageFactory;
 
 class Index extends \Magento\Backend\App\Action
 {
-
     /**
      * @var PageFactory
      */
     protected $resultPageFactory;
-
     /**
      * @param Context $context
      * @param PageFactory $resultPageFactory
      */
-    public function __construct(
-        Context $context,
-        PageFactory $resultPageFactory
-    ) {
+    public function __construct(Context $context, PageFactory $resultPageFactory)
+    {
         parent::__construct($context);
         $this->resultPageFactory = $resultPageFactory;
     }
-
     /**
      * Index action
      *
@@ -38,10 +33,8 @@ class Index extends \Magento\Backend\App\Action
         $resultPage->addBreadcrumb(__('Quotations'), __('List Quotations'));
 //        $resultPage->addBreadcrumb(__('Manage Blog Posts'), __('Manage Blog Posts'));
         $resultPage->getConfig()->getTitle()->prepend(__('List Quotations'));
-
         return $resultPage;
     }
-
     /**
      * Is the user allowed to view the blog post grid.
      *
@@ -51,6 +44,4 @@ class Index extends \Magento\Backend\App\Action
     {
         return $this->_authorization->isAllowed('Cybage_Quotation::cybage_auotation_list');
     }
-
-
 }

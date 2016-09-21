@@ -12,7 +12,7 @@
             <item name="deps" xsi:type="string">cybage_quotation_listing.cybage_quotation_listing_data_source</item>
         </item>
         <item name="spinner" xsi:type="string">cybage_quotation_columns</item>
-<!--        <item name="buttons" xsi:type="array">
+        <!--        <item name="buttons" xsi:type="array">
             <item name="add" xsi:type="array">
                 <item name="name" xsi:type="string">add</item>
                 <item name="label" xsi:type="string" translate="true">Add New Quotation</item>
@@ -69,7 +69,7 @@
                 </item>
             </argument>
         </container>
-<!--        <filterSearch name="fulltext">
+        <!--        <filterSearch name="fulltext">
             <argument name="data" xsi:type="array">
                 <item name="config" xsi:type="array">
                     <item name="component" xsi:type="string">Magento_Ui/js/grid/search/search</item>
@@ -227,7 +227,7 @@
                 </filterDate>
             </filterRange>
         </filters>
-<!--        <massaction name="listing_massaction">
+        <!--        <massaction name="listing_massaction">
             <argument name="data" xsi:type="array">
                 <item name="config" xsi:type="array">
                     <item name="selectProvider" xsi:type="string">cybage_quotation_listing.cybage_quotation_listing.cybage_quotation_columns.ids</item>
@@ -327,7 +327,7 @@
             </item>
         </argument>
 
-<!--        <selectionsColumn name="ids">
+        <!--        <selectionsColumn name="ids">
             <argument name="data" xsi:type="array">
                 <item name="config" xsi:type="array">
                     <item name="resizeEnabled" xsi:type="boolean">false</item>

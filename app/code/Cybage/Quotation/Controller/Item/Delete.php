@@ -24,7 +24,8 @@ namespace Cybage\Quotation\Controller\Item;
 
 use Magento\Framework\Controller\ResultFactory;
 
-class Delete extends \Magento\Customer\Controller\AbstractAccount {
+class Delete extends \Magento\Customer\Controller\AbstractAccount
+{
 
     protected $_quotationitem;
     protected $_managerinterface;
@@ -32,7 +33,8 @@ class Delete extends \Magento\Customer\Controller\AbstractAccount {
     protected $_customerId;
     protected $_event;
 
-    public function __construct(\Magento\Framework\App\Action\Context $context, \Cybage\Quotation\Model\ResourceModel\QuotationItem\Collection $quotationitem, \Magento\Framework\Message\ManagerInterface $managerinterface, \Magento\Customer\Model\Session $customer,\Magento\Framework\Event\ManagerInterface $event) {
+    public function __construct(\Magento\Framework\App\Action\Context $context, \Cybage\Quotation\Model\ResourceModel\QuotationItem\Collection $quotationitem, \Magento\Framework\Message\ManagerInterface $managerinterface, \Magento\Customer\Model\Session $customer, \Magento\Framework\Event\ManagerInterface $event)
+    {
 
         $this->_customer = $customer;
         $this->_customerId = $this->_customer->getCustomerId();
@@ -42,13 +44,14 @@ class Delete extends \Magento\Customer\Controller\AbstractAccount {
         parent::__construct($context);
     }
 
-    public function execute() {
+    public function execute()
+    {
         //$resultRedirect = $this->resultFactory->create(ResultFactory::TYPE_REDIRECT);
         $id = $this->getRequest()->getParam('id');
         $collection = $this->_quotationitem;
         $quotationId = 0;
-        $collection->addFieldToFilter(array('main_table.id', 'main_table.parent_id'), array($id, $id));
-        $collection->getSelect()->join(array('quotation' => 'b2b_quotation'), "quotation.id=main_table.quotation_id AND quotation.customer_id={$this->_customerId}", array('customer_id'));
+        $collection->addFieldToFilter(['main_table.id', 'main_table.parent_id'], [$id, $id]);
+        $collection->getSelect()->join(['quotation' => 'b2b_quotation'], "quotation.id=main_table.quotation_id AND quotation.customer_id={$this->_customerId}", ['customer_id']);
         $resultRedirect = $this->resultFactory->create(ResultFactory::TYPE_REDIRECT);
         if ($collection->count()) {
             try {
@@ -57,7 +60,7 @@ class Delete extends \Magento\Customer\Controller\AbstractAccount {
                     $value->delete();
                     $value->save();
                 }
-                $this->_event->dispatch('btob_quotation_item_update_after', array('id' => $quotationId));
+                $this->_event->dispatch('btob_quotation_item_update_after', ['id' => $quotationId]);
                 $this->_managerinterface->addSuccess('Product successfully deleted from quotation');
             } catch (Exception $exc) {
                 $this->_managerinterface->addError($exc->getMessage());
@@ -66,5 +69,4 @@ class Delete extends \Magento\Customer\Controller\AbstractAccount {
         $resultRedirect->setPath('quotation');
         return $resultRedirect;
     }
-
 }

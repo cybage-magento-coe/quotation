@@ -36,7 +36,7 @@
             <tbody>
                 <?php foreach ($_quotations as $_quotation): ?>
                     <tr>
-                        <td data-th="<?php echo $block->escapeHtml(__('Quotation')) ?>" class="col title">
+                        <td da ta-th="<?php echo $block->escapeHtml(__('Quotation')) ?>" class="col title">
                             <?php echo $_quotation['id'] ?>
                         </td>
                         <td data-th="<?php echo $block->escapeHtml(__('Total Actual Price')) ?>" class="col title">
@@ -49,9 +49,9 @@
                             <?php echo $block->getQuotationStatus($_quotation['quotation_status']); ?>
                         </td>
                         <td data-th="<?php echo $block->escapeHtml(__('Last Updated')) ?>" class="col title">
-                            <?php echo $this->gmtDate($_quotation['updated_at'],'Y-m-d'); ?>
+                            <?php echo $this->gmtDate($_quotation['updated_at'], 'Y-m-d'); ?>
                         </td>
-                        <td data-th="<?php echo $block->escapeHtml(__('Actions')) ?>" class="col actions">
+                        <td data-th="<?php echo $block->escapeHtml(__('Actions')) ?> " class="col actions">
                             <a href="<?php echo $block->getViewUrl($_quotation['id']) ?>" class="action view">
                                 <span><?php echo __('View') ?></span>
                             </a>

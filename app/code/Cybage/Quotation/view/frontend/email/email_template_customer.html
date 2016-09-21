@@ -12,21 +12,21 @@
  
 <!-- you can Modify content of template according to your requirement-->
 <table>
-    <tr class="email-intro">
-        <td>
-            <p class="greeting">{{trans "%customer_name," customer_name=$customer_name}}</p>
-            <p>
-                {{trans "You quotation successsfully submitted "}}
-                {{trans 'Currently status is %status' account_url=$quotation_status}}
-            </p>
-        </td>
-    </tr>
-    <tr class="email-summary">
-        <td>
-            <p>{{trans 'You will get notification once admin respond to your request'}}</p>
-        </td>
-    </tr>
-    
+        <tr class="email-intro">
+                <td>
+                        <p class="greeting">{{trans "%customer_name," customer_name=$customer_name}}</p>
+                        <p>
+                                {{trans "You quotation successsfully submitted "}}
+                                {{trans 'Currently status is %status' account_url=$quotation_status}}
+                            </p>
+                    </td>
+            </tr>
+        <tr class="email-summary">
+                <td>
+                        <p>{{trans 'You will get notification once admin respond to your request'}}</p>
+                    </td>
+            </tr>
+        
 </table>
  
 {{template config_path="design/email/footer_template"}} <!--footer of template-->

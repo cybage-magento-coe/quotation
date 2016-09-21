@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Cybage Quotation Plugin
  *
@@ -17,11 +18,15 @@
  * @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  * @author     Cybage Software Pvt. Ltd. <Support_Magento@cybage.com>
  */
+
 namespace Cybage\Quotation\Model\ResourceModel;
 
-class QuotationItem extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb{
-    
-    protected function _construct() {
+class QuotationItem extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
+{
+
+    protected function _construct()
+    {
         $this->_init('b2b_quotation_item', 'id');
     }
+
 }

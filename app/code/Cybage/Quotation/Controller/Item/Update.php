@@ -24,7 +24,8 @@ namespace Cybage\Quotation\Controller\Item;
 
 use Magento\Framework\Controller\ResultFactory;
 
-class Update extends \Magento\Customer\Controller\AbstractAccount {
+class Update extends \Magento\Customer\Controller\AbstractAccount
+{
 
 //put your code here
     protected $_formKeyValidator;
@@ -40,20 +41,8 @@ class Update extends \Magento\Customer\Controller\AbstractAccount {
     protected $_cart;
     protected $_product;
 
-    public function __construct(
-    \Magento\Framework\App\Action\Context $context, 
-            \Magento\Framework\Data\Form\FormKey\Validator $formKeyValidator, 
-            \Cybage\Quotation\Model\QuotationItem $quotationitem, 
-            \Magento\Framework\Message\ManagerInterface $managerinterface, 
-            \Magento\Framework\Event\ManagerInterface $event, 
-            \Cybage\Quotation\Helper\Data $data, 
-            \Cybage\Quotation\Model\QuotationComment $quotationComment, 
-            \Magento\Customer\Model\Session $customer, 
-            \Magento\Checkout\Model\Session $checkoutSession, 
-            \Magento\Quote\Model\Quote\Item $quoteItem, 
-            \Magento\Checkout\Model\Cart $cart, 
-            \Magento\Catalog\Api\ProductRepositoryInterface $product
-    ) {
+    public function __construct(\Magento\Framework\App\Action\Context $context, \Magento\Framework\Data\Form\FormKey\Validator $formKeyValidator, \Cybage\Quotation\Model\QuotationItem $quotationitem, \Magento\Framework\Message\ManagerInterface $managerinterface, \Magento\Framework\Event\ManagerInterface $event, \Cybage\Quotation\Helper\Data $data, \Cybage\Quotation\Model\QuotationComment $quotationComment, \Magento\Customer\Model\Session $customer, \Magento\Checkout\Model\Session $checkoutSession, \Magento\Quote\Model\Quote\Item $quoteItem, \Magento\Checkout\Model\Cart $cart, \Magento\Catalog\Api\ProductRepositoryInterface $product)
+    {
 
         $this->_formKeyValidator = $formKeyValidator;
         $this->_quotationitem = $quotationitem;
@@ -70,10 +59,11 @@ class Update extends \Magento\Customer\Controller\AbstractAccount {
         parent::__construct($context);
     }
 
-    public function execute() {
+    public function execute()
+    {
         $resultRedirect = $this->resultFactory->create(ResultFactory::TYPE_REDIRECT);
         $data = $this->getRequest()->getParams();
-        $setData = array();
+        $setData = [];
         if (!empty($data) && !isset($data['convert_to_cart'])) {
             try {
                 foreach ($data as $key => $value) {
@@ -87,11 +77,11 @@ class Update extends \Magento\Customer\Controller\AbstractAccount {
                     $func = 'set' . $this->dashesToCamelCase(implode('_', $temp));
                     $this->_quotationitem->load($id);
                     $this->_quotationitem->$func($value);
-                    $this->_event->dispatch('btob_quotation_item_update_before', array('item' => $this->_quotationitem));
+                    $this->_event->dispatch('btob_quotation_item_update_before', ['item' => $this->_quotationitem]);
                     $this->_quotationitem->save();
                     $this->_quotationitem->unsetData();
                 }
-                $this->_event->dispatch('btob_quotation_item_update_after', array('id' => $data['quotationid']));
+                $this->_event->dispatch('btob_quotation_item_update_after', ['id' => $data['quotationid']]);
                 if (isset($data['comment']) && !empty($data['comment'])) {
                     $this->_quotationComment->setQuotationId($data['quotationid'])
                             ->setCustomerId($this->_customerId)
@@ -125,7 +115,8 @@ class Update extends \Magento\Customer\Controller\AbstractAccount {
      * @param type $capitalizeFirstCharacter
      * @return type
      */
-    private function dashesToCamelCase($string, $capitalizeFirstCharacter = false) {
+    private function dashesToCamelCase($string, $capitalizeFirstCharacter = false)
+    {
         $str = str_replace(' ', '', ucwords(str_replace('_', ' ', $string)));
 
         if (!$capitalizeFirstCharacter) {
@@ -137,7 +128,8 @@ class Update extends \Magento\Customer\Controller\AbstractAccount {
     /**
      * Deletes existing cart items
      */
-    private function deleteQuoteItems() {
+    private function deleteQuoteItems()
+    {
         $checkoutSession = $this->_checkoutSession;
         $allItems = $checkoutSession->getQuote()->getAllVisibleItems();
         foreach ($allItems as $item) {
@@ -147,7 +139,8 @@ class Update extends \Magento\Customer\Controller\AbstractAccount {
         }
     }
 
-    private function addItemsToCart($quotationId = null) {
+    private function addItemsToCart($quotationId = null)
+    {
         if ($quotationId) {
             $storeId = $this->_objectManager->get('Magento\Store\Model\StoreManagerInterface')->getStore()->getId();
             try {
@@ -155,7 +148,7 @@ class Update extends \Magento\Customer\Controller\AbstractAccount {
                         ->addFieldToFilter('quotation_id', $quotationId);
                 foreach ($collection as $value) {
                     $product = $this->_product->getById($value->getProductId(), false, $storeId);
-                    $param = array();
+                    $param = [];
                     $param['product'] = $value->getProductId();
                     $options = unserialize($value->getOptions());
                     if (isset($options['bundle_option']) && isset($options['bundle_option_qty'])) {
@@ -177,5 +170,4 @@ class Update extends \Magento\Customer\Controller\AbstractAccount {
             }
         }
     }
-
 }

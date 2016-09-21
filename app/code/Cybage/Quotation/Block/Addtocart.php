@@ -21,7 +21,8 @@
 
 namespace Cybage\Quotation\Block;
 
-class Addtocart extends \Magento\Framework\View\TemplateEngine\Php {
+class Addtocart extends \Magento\Framework\View\TemplateEngine\Php
+{
 
     private $customer;
     private $_helper;
@@ -30,10 +31,8 @@ class Addtocart extends \Magento\Framework\View\TemplateEngine\Php {
     public $_storeManager;
     private $_formKey;
 
-    public function __construct(
-    \Magento\Framework\ObjectManagerInterface $helperFactory, \Magento\Customer\Model\Session $session, \Magento\Framework\Pricing\Helper\Data $pricingHelper, \Magento\Framework\Stdlib\DateTime\DateTime $dateTime,\Magento\Store\Model\StoreManagerInterface $storeManager,
-     \Magento\Framework\Data\Form\FormKey $formKey
-    ) {
+    public function __construct(\Magento\Framework\ObjectManagerInterface $helperFactory, \Magento\Customer\Model\Session $session, \Magento\Framework\Pricing\Helper\Data $pricingHelper, \Magento\Framework\Stdlib\DateTime\DateTime $dateTime, \Magento\Store\Model\StoreManagerInterface $storeManager, \Magento\Framework\Data\Form\FormKey $formKey)
+    {
         $this->customer = $session;
         $this->_pricingHelper = $pricingHelper;
         $this->_dateTime = $dateTime;
@@ -47,33 +46,38 @@ class Addtocart extends \Magento\Framework\View\TemplateEngine\Php {
      * @param type $page
      * @return boolean
      */
-    public function showAddToQuote($page = 'list') {;
+    public function showAddToQuote($page = 'list')
+    {
+        ;
         $helper = $this->helper('\Cybage\Quotation\Helper\Data');
-            switch ($page) {
-                case 'list':
-                    if ($helper->isQuoteAllowedFromCatalog() && $this->customer->isLoggedIn()) {
-                        return TRUE;
-                    }
-                    break;
-                case 'pdp':
-                    if ($this->customer->isLoggedIn()) {
-                        return TRUE;
-                    }
-                    break;
-                case 'cart':
-                    //isQuoteAllowedFromCart
-                    if ($helper->isQuoteAllowedFromCart() && $this->customer->isLoggedIn()) {
-                        return TRUE;
-                    }
-                    break;
-                default :
-                    return FALSE;
-                    break;
-            }
-        return FALSE
-;    }
+        switch ($page)
+        {
+            case 'list':
+                if ($helper->isQuoteAllowedFromCatalog() && $this->customer->isLoggedIn()) {
+                    return true;
+                }
+                break;
+            case 'pdp':
+                if ($this->customer->isLoggedIn()) {
+                    return true;
+                }
+                break;
+            case 'cart':
+                //isQuoteAllowedFromCart
+                if ($helper->isQuoteAllowedFromCart() && $this->customer->isLoggedIn()) {
+                    return true;
+                }
+                break;
+            default :
+                return false;
+                break;
+        }
+        return false
+        ;
+    }
 
-    public function getAddToQuoteURL($product = null) {
+    public function getAddToQuoteURL($product = null)
+    {
         if ($product) {
             return $product->getUrlModel()->getUrl($product);
         }
@@ -84,21 +88,22 @@ class Addtocart extends \Magento\Framework\View\TemplateEngine\Php {
      * @param type number
      * @return type string
      */
-    public function priceFormat($price) {
+    public function priceFormat($price)
+    {
         return $this->_pricingHelper->currency($price, true, false);
     }
 
     /**
-     * returns formated date 
+     * returns formated date
+     *
      */
-    public function gmtDate($date = null, $format = null) {
+    public function gmtDate($date = null, $format = null)
+    {
         return $this->_dateTime->gmtDate($format, $date);
     }
-    
-    public function getFrmKey(){
+
+    public function getFrmKey()
+    {
         return $this->_formKey->getFormKey();
     }
-    
-    
-
 }

@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Cybage Quotation Plugin
  *
@@ -19,12 +18,11 @@
  * @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  * @author     Cybage Software Pvt. Ltd. <Support_Magento@cybage.com>
  */
-
 namespace Cybage\Quotation\Controller\View;
-
-class Index extends \Magento\Customer\Controller\AbstractAccount {
-    
-    public function execute() {
+class Index extends \Magento\Customer\Controller\AbstractAccount
+{
+    public function execute()
+    {
         $this->_view->loadLayout();
         $this->_view->getLayout()->initMessages();
         $this->_view->renderLayout();

@@ -3,20 +3,19 @@
  * Copyright © 2016 Magento. All rights reserved.
  * See COPYING.txt for license details.
  */
-
 // @codingStandardsIgnoreFile
 ?>
-<?php if ($block->isPossibleOnepageCheckout()):?>
+<?php if ($block->isPossibleOnepageCheckout()): ?>
     <button type="button"
             data-role="proceed-to-checkout"
             title="<?php /* @escapeNotVerified */ echo __('Proceed to Checkout') ?>"
             data-mage-init='{"Magento_Checkout/js/proceed-to-checkout":{"checkoutUrl":"<?php /* @escapeNotVerified */ echo $block->getCheckoutUrl(); ?>"}}'
             class="action primary checkout<?php echo($block->isDisabled()) ? ' disabled' : ''; ?>"
-            <?php if ($block->isDisabled()):?>disabled="disabled"<?php endif; ?>>
+            <?php if ($block->isDisabled()): ?>disabled="disabled"<?php endif; ?>>
         <span><?php /* @escapeNotVerified */ echo __('Proceed to Checkout') ?></span>
     </button>
-<?php endif?>
-<?php if($this->showAddToQuote('cart')): ?>
-<a class="action primary checkout-quote" href="<?php echo $this->_storeManager->getStore()->getBaseUrl().'quotation/index/converttoquote'; ?>">Convert to Quotation</a>
+<?php endif ?>
+<?php if ($this->showAddToQuote('cart')): ?>
+    <a class="action primary checkout-quote" href="<?php echo $this->_storeManager->getStore()->getBaseUrl() . 'quotation/index/converttoquote'; ?>">Convert to Quotation</a>
 <?php endif; ?>
-
+    

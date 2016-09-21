@@ -1,11 +1,14 @@
 <?php
+
 namespace Cybage\Quotation\Model\Source;
-class Status implements \Magento\Framework\Data\OptionSourceInterface {
+
+class Status implements \Magento\Framework\Data\OptionSourceInterface
+{
 
     protected $_quotationHelper;
 
-
-    public function __construct(\Cybage\Quotation\Helper\Data $data) {
+    public function __construct(\Cybage\Quotation\Helper\Data $data)
+    {
         $this->_quotationHelper = $data;
     }
 
@@ -14,8 +17,9 @@ class Status implements \Magento\Framework\Data\OptionSourceInterface {
      *
      * @return array
      */
-    public function toOptionArray() {
-        $options = array();
+    public function toOptionArray()
+    {
+        $options = [];
         foreach ($this->_quotationHelper->getQuotationStatusArray() as $key => $value) {
             $options[] = [
                 'label' => $value,

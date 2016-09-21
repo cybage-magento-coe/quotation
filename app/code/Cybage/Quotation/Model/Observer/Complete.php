@@ -25,23 +25,26 @@ namespace Cybage\Quotation\Model\Observer;
 use Magento\Framework\Event\Observer;
 use Magento\Framework\Event\ObserverInterface;
 
-class Complete implements ObserverInterface {
+class Complete implements ObserverInterface
+{
 
     private $_customer;
     private $_quotation;
 
     public function __construct(
     \Cybage\Quotation\Model\Quotation $quotation, \Magento\Customer\Model\Session $customer
-    ) {
+    )
+    {
         $this->_quotation = $quotation;
         $this->_customer = $customer;
     }
 
-    public function execute(Observer $observer) {
+    public function execute(Observer $observer)
+    {
         $orderInstance = $observer->getOrder();
         $incrementId = $orderInstance->getIncrementId();
         $quotatioinId = $this->_customer->getQuotationId();
-        
+
         if ($quotatioinId) {
             try {
                 $quotation = $this->_quotation->load($quotatioinId);

@@ -21,6 +21,7 @@
 
 namespace Cybage\Quotation\Helper\Configurable;
 
-class Configuration extends \Magento\Catalog\Helper\Product\Configuration{
+class Configuration extends \Magento\Catalog\Helper\Product\Configuration
+{
     //put your code here
 }

@@ -23,9 +23,11 @@ namespace Cybage\Quotation\Helper\Bundle;
 
 use Magento\Catalog\Model\Product\Configuration\Item\ItemInterface;
 
-class Configuration extends \Magento\Bundle\Helper\Catalog\Product\Configuration {
+class Configuration extends \Magento\Bundle\Helper\Catalog\Product\Configuration
+{
 
-    public function getBundleOptions(ItemInterface $item) {
+    public function getBundleOptions(ItemInterface $item)
+    {
         $options = [];
         $product = $item->getProduct();
 
@@ -55,15 +57,14 @@ class Configuration extends \Magento\Bundle\Helper\Catalog\Product\Configuration
                         //$option = ['label' => $bundleOption->getTitle(), 'value' => []];
 
                         $bundleSelections = $bundleOption->getSelections();
-                        
+
                         foreach ($bundleSelections as $bundleSelection) {
                             $options['bundle_option'][$i] = $bundleSelection->getSelectionId();
-                            
+
                             $qty = $this->getSelectionQty($product, $bundleSelection->getSelectionId()) * 1;
                             $options['bundle_option_qty'][$i] = $qty;
-                            
+
                             $i++;
-                            
                         }
                     }
                 }
@@ -72,5 +73,4 @@ class Configuration extends \Magento\Bundle\Helper\Catalog\Product\Configuration
 
         return $options;
     }
-
 }

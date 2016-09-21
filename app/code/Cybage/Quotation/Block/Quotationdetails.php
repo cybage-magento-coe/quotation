@@ -22,7 +22,8 @@
 
 namespace Cybage\Quotation\Block;
 
-class Quotationdetails extends \Magento\Framework\View\Element\Template {
+class Quotationdetails extends \Magento\Framework\View\Element\Template
+{
 
     private $_quotation;
     private $_action;
@@ -34,17 +35,8 @@ class Quotationdetails extends \Magento\Framework\View\Element\Template {
     protected $_customer;
     protected $_customerId;
 
-    public function __construct(\Magento\Framework\View\Element\Template\Context $context, array $data = array(), 
-            \Cybage\Quotation\Model\Quotation $quotation, 
-            \Cybage\Quotation\Model\ResourceModel\QuotationItem\Collection $quotationItem, 
-            \Magento\Framework\App\Action\Action $action, 
-            \Magento\Framework\App\ResourceConnection $resource, 
-            \Magento\Eav\Model\Entity $eavEntity, 
-            \Magento\Eav\Model\Entity\Attribute $eavEntityAttribute, 
-            \Cybage\Quotation\Model\ResourceModel\QuotationComment\Collection $quotationComment,
-            \Magento\Customer\Model\Session $customer
-            
-    ) {
+    public function __construct(\Magento\Framework\View\Element\Template\Context $context, array $data = array(), \Cybage\Quotation\Model\Quotation $quotation, \Cybage\Quotation\Model\ResourceModel\QuotationItem\Collection $quotationItem, \Magento\Framework\App\Action\Action $action, \Magento\Framework\App\ResourceConnection $resource, \Magento\Eav\Model\Entity $eavEntity, \Magento\Eav\Model\Entity\Attribute $eavEntityAttribute, \Cybage\Quotation\Model\ResourceModel\QuotationComment\Collection $quotationComment, \Magento\Customer\Model\Session $customer)
+    {
         $this->_quotation = $quotation;
         $this->_quotationItem = $quotationItem;
         $this->_action = $action;
@@ -57,8 +49,8 @@ class Quotationdetails extends \Magento\Framework\View\Element\Template {
         parent::__construct($context, $data);
     }
 
-    public function getQuotationDetails() {
-        //$connection  = $this->_resource->getConnection();
+    public function getQuotationDetails()
+    {
         $productEntityTable = $this->_resource->getTableName('catalog_product_entity');
         $productEntityVarcharTable = $this->_resource->getTableName('catalog_product_entity_varchar');
 
@@ -74,42 +66,28 @@ class Quotationdetails extends \Magento\Framework\View\Element\Template {
                 ->addFieldToFilter('main_table.id', $quotationId)
                 ->addFieldToFilter('main_table.customer_id', $this->_customerId);
         $quotation->getSelect()
-                ->join(array('item' => 'b2b_quotation_item'), 'item.quotation_id = main_table.id', array(
-                    'id as item_id',
-                    'product_id',
-                    'qty', 'product_price',
-                    'proposed_price',
-                    'sku',
-                    'options',
-                    'parent_id'
-        ));
+                ->join(['item' => 'b2b_quotation_item'], 'item.quotation_id = main_table.id', ['id as item_id','product_id','qty', 'product_price','proposed_price','sku','options','parent_id']);
         $quotation->getSelect()
-                ->join(array(
-                    'product' => $productEntityTable,
-                        ), 'item.product_id=product.entity_id', array('sku'))
-                ->join(
-                        array('cpev' => $productEntityVarcharTable), 'cpev.entity_id=product.entity_id AND cpev.attribute_id=' . $prodNameAttrId, array('name' => 'value')
-                )
-        /* ->join(
-          array('cpevI' => $productEntityVarcharTable), 'cpev.entity_id=product.entity_id AND cpev.attribute_id=' . $prodSimageAttrId, array('image' => 'value')
-          ) */;
+                ->join(['product' => $productEntityTable,], 'item.product_id=product.entity_id', ['sku'])
+                ->join(['cpev' => $productEntityVarcharTable], 'cpev.entity_id=product.entity_id AND cpev.attribute_id=' . $prodNameAttrId, ['name' => 'value']);
         return $quotation->getData();
     }
 
-    public function getComments($quotattionId = null) {
+    public function getComments($quotattionId = null)
+    {
         if ($quotattionId) {
             $customerEntityTable = $this->_resource->getTableName('customer_entity');
             $collection = $this->_quotationComment->addFieldToFilter('quotation_id', $quotattionId);
             return $collection;
         }
     }
-    
-    public function isUpdateAllowed($quotationstatus = null){
-        $allowArray = [2,7];
-        if(in_array($quotationstatus, $allowArray)){
+
+    public function isUpdateAllowed($quotationstatus = null)
+    {
+        $allowArray = [2, 7];
+        if (in_array($quotationstatus, $allowArray)) {
             return true;
         }
         return false;
     }
-
 }

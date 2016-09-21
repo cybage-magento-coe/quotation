@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Cybage Quotation Plugin
  *
@@ -20,9 +21,13 @@
 
 namespace Cybage\Quotation\Model\ResourceModel\QuotationLog;
 
-class QuotationLog extends \Magento\Framework\Model\ResourceModel\Db\Collection\AbstractCollection{
+class QuotationLog extends \Magento\Framework\Model\ResourceModel\Db\Collection\AbstractCollection
+{
+
     //put your code here
-    protected function _construct() {
+    protected function _construct()
+    {
         $this->_init('Cybage\Quotation\Model\QuotationLog', 'Cybage\Quotation\Model\ResourceModel\QuotationLog');
     }
+
 }

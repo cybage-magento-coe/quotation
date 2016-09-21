@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Cybage Quotation Plugin
  *
@@ -18,12 +17,12 @@
  * @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  * @author     Cybage Software Pvt. Ltd. <Support_Magento@cybage.com>
  */
-
 namespace Cybage\Quotation\Helper;
 
-class Configuration extends \Magento\Catalog\Helper\Product\Configuration {
-
-    public function getCustomOptions(\Magento\Catalog\Model\Product\Configuration\Item\ItemInterface $item) {
+class Configuration extends \Magento\Catalog\Helper\Product\Configuration
+{
+    public function getCustomOptions(\Magento\Catalog\Model\Product\Configuration\Item\ItemInterface $item)
+    {
         $product = $item->getProduct();
         $options = [];
         $optionIds = $item->getOptionByCode('option_ids');
@@ -38,7 +37,6 @@ class Configuration extends \Magento\Catalog\Helper\Product\Configuration {
                             ->setOption($option)
                             ->setConfigurationItem($item)
                             ->setConfigurationItemOption($itemOption);
-
                     if ('file' == $option->getType()) {
                         $downloadParams = $item->getFileDownloadParams();
                         if ($downloadParams) {
@@ -52,7 +50,6 @@ class Configuration extends \Magento\Catalog\Helper\Product\Configuration {
                             }
                         }
                     }
-
                     $options[] = [
                         'label' => $option->getTitle(),
                         'value' => $group->getFormattedOptionValue($itemOption->getValue()),
@@ -69,8 +66,6 @@ class Configuration extends \Magento\Catalog\Helper\Product\Configuration {
         if ($addOptions) {
             $options = array_merge($options, unserialize($addOptions->getValue()));
         }
-
         return $options;
     }
-
 }

@@ -24,7 +24,7 @@
 
         <referenceBlock name="checkout.cart.methods.onepage.bottom">
             <action method='setTemplate'>
-                    <argument name="template" xsi:type="string">Cybage_Quotation::onepage/quotation_link.phtml</argument>
+                <argument name="template" xsi:type="string">Cybage_Quotation::onepage/quotation_link.phtml</argument>
             </action>
         </referenceBlock>
         <referenceBlock name="checkout.cart.totals">

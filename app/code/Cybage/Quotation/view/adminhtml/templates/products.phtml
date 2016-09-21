@@ -16,17 +16,17 @@ $data = $productList->getData();
         </thead>
         <tbody class="even">
             <?php foreach ($data as $list): ?>
-            <tr>
-                <td class="col-product"><div id="order_item_2">
-                        <div id="order_item_2_title" class="product-title">
-                            Minerva LumaTech™ V-Tee-XS-Blue   
+                <tr>
+                    <td class="col-product"><div id="order_item_2">
+                            <div id="order_item_2_title" class="product-title">
+                                Minerva LumaTech™ V-Tee-XS-Blue   
+                            </div>
                         </div>
-                    </div>
-                </td>
-                <td><?php echo $list['qty']; ?></td>
-                <td class="col-status"><?php echo $this->priceFormat($list['product_price']); ?></td>
-                <td class="col-price-original"><span class="price"><?php echo $this->priceFormat($list['proposed_price']); ?></span></td>
-            </tr>
+                    </td>
+                    <td><?php echo $list['qty']; ?></td>
+                    <td class="col-status"><?php echo $this->priceFormat($list['product_price']); ?></td>
+                    <td class="col-price-original"><span class="price"><?php echo $this->priceFormat($list['proposed_price']); ?></span></td>
+                </tr>
             <?php endforeach; ?>
 
         </tbody>

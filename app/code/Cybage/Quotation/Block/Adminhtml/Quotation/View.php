@@ -6,7 +6,6 @@
  * See COPYING.txt for license details.
  */
 namespace Cybage\Quotation\Block\Adminhtml\Quotation;
-
 /**
  * Adminhtml sales order view
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
@@ -19,28 +18,24 @@ class View extends \Magento\Backend\Block\Widget\Form\Container
      * @var string
      */
     protected $_blockGroup = 'Cybage_Quotation';
-
     /**
      * Core registry
      *
      * @var \Magento\Framework\Registry
      */
     protected $_coreRegistry = null;
-
     /**
      * Sales config
      *
      * @var \Magento\Sales\Model\Config
      */
     protected $_salesConfig;
-
     /**
      * Reorder helper
      *
      * @var \Magento\Sales\Helper\Reorder
      */
     protected $_reorderHelper;
-
     /**
      * @param \Magento\Backend\Block\Widget\Context $context
      * @param \Magento\Framework\Registry $registry
@@ -48,19 +43,13 @@ class View extends \Magento\Backend\Block\Widget\Form\Container
      * @param \Magento\Sales\Helper\Reorder $reorderHelper
      * @param array $data
      */
-    public function __construct(
-        \Magento\Backend\Block\Widget\Context $context,
-        \Magento\Framework\Registry $registry,
-        \Magento\Sales\Model\Config $salesConfig,
-        \Magento\Sales\Helper\Reorder $reorderHelper,
-        array $data = []
-    ) {
+    public function __construct(\Magento\Backend\Block\Widget\Context $context, \Magento\Framework\Registry $registry, \Magento\Sales\Model\Config $salesConfig, \Magento\Sales\Helper\Reorder $reorderHelper, array $data = [])
+    {
         $this->_reorderHelper = $reorderHelper;
         $this->_coreRegistry = $registry;
         $this->_salesConfig = $salesConfig;
         parent::__construct($context, $data);
     }
-
     /**
      * Constructor
      *
@@ -74,191 +63,81 @@ class View extends \Magento\Backend\Block\Widget\Form\Container
         $this->_objectId = 'order_id';
         $this->_controller = 'adminhtml_order';
         $this->_mode = 'view';
-
         parent::_construct();
-
         $this->buttonList->remove('delete');
         $this->buttonList->remove('reset');
         $this->buttonList->remove('save');
         $this->setId('sales_order_view');
         $order = $this->getOrder();
-
-//        if (!$order) {
-//            return;
-//        }
-
-        //if ($this->_isAllowedAction('Cybage_Quotation::actions_edit') && $order->canEdit()) {
-            $onclickJs = 'jQuery(\'#order_edit\').orderEditDialog({message: \''
+        $onclickJs = 'jQuery(\'#order_edit\').orderEditDialog({message: \''
                 . $this->getEditMessage($order) . '\', url: \'' . $this->getEditUrl()
                 . '\'}).orderEditDialog(\'showDialog\');';
-
-            $this->buttonList->add(
-                'order_edit',
-                [
-                    'label' => __('Edit'),
-                    'class' => 'edit primary',
-                    'onclick' => $onclickJs,
-                    'data_attribute' => [
-                        'mage-init' => '{"orderEditDialog":{}}',
+        $this->buttonList->add('order_edit', ['label' => __('Edit'),'class' => 'edit primary','onclick' => $onclickJs,'data_attribute' => ['mage-init' => '{"orderEditDialog":{}}',]]);
+        
+        $this->buttonList->add('order_cancel', ['label' => __('Cancel'),'class' => 'cancel','id' => 'order-view-cancel-button','data_attribute' => ['url' => $this->getCancelUrl()]]);
+        
+        $message = __('Are you sure you want to send an order email to customer?');
+        $this->addButton('send_notification', ['label' => __('Send Email'),'class' => 'send-email','onclick' => "confirmSetLocation('{$message}', '{$this->getEmailUrl()}')"]);
+            
+        $message = __('This will create an offline refund. ' . 'To create an online refund, open an invoice and create credit memo for it. Do you want to continue?');
+        
+        $onClick = "setLocation('{$this->getCreditmemoUrl()}')";
+        if ($order->getPayment()->getMethodInstance()->isGateway()) {
+            $onClick = "confirmSetLocation('{$message}', '{$this->getCreditmemoUrl()}')";
+        }
+        $this->buttonList->add('order_creditmemo', ['label' => __('Credit Memo'), 'onclick' => $onClick, 'class' => 'credit-memo']);
+        
+        $message = __('Are you sure you want to void the payment?');
+        $this->addButton('void_payment', ['label' => __('Void'),'onclick' => "confirmSetLocation('{$message}', '{$this->getVoidPaymentUrl()}')"]);
+            
+        $this->buttonList->add('order_hold', ['label' => __('Hold'),'class' => __('hold'),'id' => 'order-view-hold-button','data_attribute' => ['url' => $this->getHoldUrl()]]);
+        $this->buttonList->add('order_unhold', ['label' => __('Unhold'),'class' => __('unhold'),'id' => 'order-view-unhold-button','data_attribute' => ['url' => $this->getUnHoldUrl()]]);
+        
+        if ($order->canReviewPayment()) {
+            $message = __('Are you sure you want to accept this payment?');
+            $this->buttonList->add('accept_payment', ['label' => __('Accept Payment'),'onclick' => "confirmSetLocation('{$message}', '{$this->getReviewPaymentUrl('accept')}')"]);
+            $message = __('Are you sure you want to deny this payment?');
+            $this->buttonList->add('deny_payment', [
+                'label' => __('Deny Payment'),
+                'onclick' => "confirmSetLocation('{$message}', '{$this->getReviewPaymentUrl('deny')}')"
                     ]
-                ]
             );
-        //}
-
-        //if ($this->_isAllowedAction('Cybage_Quotation::cancel') && $order->canCancel()) {
+        }
+        if ($order->canFetchPaymentReviewUpdate()) {
             $this->buttonList->add(
-                'order_cancel',
-                [
-                    'label' => __('Cancel'),
-                    'class' => 'cancel',
-                    'id' => 'order-view-cancel-button',
-                    'data_attribute' => [
-                        'url' => $this->getCancelUrl()
+                    'get_review_payment_update', [
+                'label' => __('Get Payment Update'),
+                'onclick' => 'setLocation(\'' . $this->getReviewPaymentUrl('update') . '\')'
                     ]
+            );
+        }
+        
+        $_label = $order->getForcedShipmentWithInvoice() ? __('Invoice and Ship') : __('Invoice');
+        $this->buttonList->add(
+                'order_invoice', [
+            'label' => $_label,
+            'onclick' => 'setLocation(\'' . $this->getInvoiceUrl() . '\')',
+            'class' => 'invoice'
                 ]
-            );
-        //}
-
-        //if ($this->_isAllowedAction('Cybage_Quotation::emails') && !$order->isCanceled()) {
-            $message = __('Are you sure you want to send an order email to customer?');
-            $this->addButton(
-                'send_notification',
-                [
-                    'label' => __('Send Email'),
-                    'class' => 'send-email',
-                    'onclick' => "confirmSetLocation('{$message}', '{$this->getEmailUrl()}')"
+        );
+        
+        $this->buttonList->add(
+                'order_ship', [
+            'label' => __('Ship'),
+            'onclick' => 'setLocation(\'' . $this->getShipUrl() . '\')',
+            'class' => 'ship'
                 ]
-            );
-        //}
-
-        //if ($this->_isAllowedAction('Cybage_Quotation::creditmemo') && $order->canCreditmemo()) {
-            $message = __(
-                'This will create an offline refund. ' .
-                'To create an online refund, open an invoice and create credit memo for it. Do you want to continue?'
-            );
-            $onClick = "setLocation('{$this->getCreditmemoUrl()}')";
-            if ($order->getPayment()->getMethodInstance()->isGateway()) {
-                $onClick = "confirmSetLocation('{$message}', '{$this->getCreditmemoUrl()}')";
-            }
-            $this->buttonList->add(
-                'order_creditmemo',
-                ['label' => __('Credit Memo'), 'onclick' => $onClick, 'class' => 'credit-memo']
-            );
-        //}
-
-        // invoice action intentionally
-        //if ($this->_isAllowedAction('Cybage_Quotation::invoice') && $order->canVoidPayment()) {
-            $message = __('Are you sure you want to void the payment?');
-            $this->addButton(
-                'void_payment',
-                [
-                    'label' => __('Void'),
-                    'onclick' => "confirmSetLocation('{$message}', '{$this->getVoidPaymentUrl()}')"
+        );
+        
+        $this->buttonList->add(
+                'order_reorder', [
+            'label' => __('Reorder'),
+            'onclick' => 'setLocation(\'' . $this->getReorderUrl() . '\')',
+            'class' => 'reorder'
                 ]
-            );
-        //}
-
-        //if ($this->_isAllowedAction('Cybage_Quotation::hold') && $order->canHold()) {
-            $this->buttonList->add(
-                'order_hold',
-                [
-                    'label' => __('Hold'),
-                    'class' => __('hold'),
-                    'id' => 'order-view-hold-button',
-                    'data_attribute' => [
-                        'url' => $this->getHoldUrl()
-                    ]
-                ]
-            );
-        //}
-
-        //if ($this->_isAllowedAction('Cybage_Quotation::unhold') && $order->canUnhold()) {
-            $this->buttonList->add(
-                'order_unhold',
-                [
-                    'label' => __('Unhold'),
-                    'class' => __('unhold'),
-                    'id' => 'order-view-unhold-button',
-                    'data_attribute' => [
-                        'url' => $this->getUnHoldUrl()
-                    ]
-                ]
-            );
-        //}
-
-        //if ($this->_isAllowedAction('Cybage_Quotation::review_payment')) {
-            if ($order->canReviewPayment()) {
-                $message = __('Are you sure you want to accept this payment?');
-                $this->buttonList->add(
-                    'accept_payment',
-                    [
-                        'label' => __('Accept Payment'),
-                        'onclick' => "confirmSetLocation('{$message}', '{$this->getReviewPaymentUrl('accept')}')"
-                    ]
-                );
-                $message = __('Are you sure you want to deny this payment?');
-                $this->buttonList->add(
-                    'deny_payment',
-                    [
-                        'label' => __('Deny Payment'),
-                        'onclick' => "confirmSetLocation('{$message}', '{$this->getReviewPaymentUrl('deny')}')"
-                    ]
-                );
-            }
-            if ($order->canFetchPaymentReviewUpdate()) {
-                $this->buttonList->add(
-                    'get_review_payment_update',
-                    [
-                        'label' => __('Get Payment Update'),
-                        'onclick' => 'setLocation(\'' . $this->getReviewPaymentUrl('update') . '\')'
-                    ]
-                );
-            }
-        //}
-
-        //if ($this->_isAllowedAction('Cybage_Quotation::invoice') && $order->canInvoice()) {
-            $_label = $order->getForcedShipmentWithInvoice() ? __('Invoice and Ship') : __('Invoice');
-            $this->buttonList->add(
-                'order_invoice',
-                [
-                    'label' => $_label,
-                    'onclick' => 'setLocation(\'' . $this->getInvoiceUrl() . '\')',
-                    'class' => 'invoice'
-                ]
-            );
-        //}
-
-//        if ($this->_isAllowedAction(
-//            'Cybage_Quotation::ship'
-//        ) && $order->canShip() && !$order->getForcedShipmentWithInvoice()
-//        ) {
-            $this->buttonList->add(
-                'order_ship',
-                [
-                    'label' => __('Ship'),
-                    'onclick' => 'setLocation(\'' . $this->getShipUrl() . '\')',
-                    'class' => 'ship'
-                ]
-            );
-        //}
-
-//        if ($this->_isAllowedAction(
-//            'Cybage_Quotation::reorder'
-//        ) && $this->_reorderHelper->isAllowed(
-//            $order->getStore()
-//        ) && $order->canReorderIgnoreSalable()
-//        ) {
-            $this->buttonList->add(
-                'order_reorder',
-                [
-                    'label' => __('Reorder'),
-                    'onclick' => 'setLocation(\'' . $this->getReorderUrl() . '\')',
-                    'class' => 'reorder'
-                ]
-            );
+        );
         //}
     }
-
     /**
      * Retrieve order model object
      *
@@ -268,7 +147,6 @@ class View extends \Magento\Backend\Block\Widget\Form\Container
     {
         return $this->_coreRegistry->registry('sales_order');
     }
-
     /**
      * Retrieve Order Identifier
      *
@@ -278,7 +156,6 @@ class View extends \Magento\Backend\Block\Widget\Form\Container
     {
         return $this->getOrder() ? $this->getOrder()->getId() : null;
     }
-
     /**
      * Get header text
      *
@@ -293,17 +170,11 @@ class View extends \Magento\Backend\Block\Widget\Form\Container
             $_extOrderId = '';
         }
         return __(
-            'Order # %1 %2 | %3',
-            $this->getOrder()->getRealOrderId(),
-            $_extOrderId,
-            $this->formatDate(
-                $this->_localeDate->date(new \DateTime($this->getOrder()->getCreatedAt())),
-                \IntlDateFormatter::MEDIUM,
-                true
-            )
+                'Order # %1 %2 | %3', $this->getOrder()->getRealOrderId(), $_extOrderId, $this->formatDate(
+                        $this->_localeDate->date(new \DateTime($this->getOrder()->getCreatedAt())), \IntlDateFormatter::MEDIUM, true
+                )
         );
     }
-
     /**
      * URL getter
      *
@@ -316,7 +187,6 @@ class View extends \Magento\Backend\Block\Widget\Form\Container
         $params2['order_id'] = $this->getOrderId();
         return parent::getUrl($params, $params2);
     }
-
     /**
      * Edit URL getter
      *
@@ -326,7 +196,6 @@ class View extends \Magento\Backend\Block\Widget\Form\Container
     {
         return $this->getUrl('sales/order_edit/start');
     }
-
     /**
      * Email URL getter
      *
@@ -336,7 +205,6 @@ class View extends \Magento\Backend\Block\Widget\Form\Container
     {
         return $this->getUrl('sales/*/email');
     }
-
     /**
      * Cancel URL getter
      *
@@ -346,7 +214,6 @@ class View extends \Magento\Backend\Block\Widget\Form\Container
     {
         return $this->getUrl('sales/*/cancel');
     }
-
     /**
      * Invoice URL getter
      *
@@ -356,7 +223,6 @@ class View extends \Magento\Backend\Block\Widget\Form\Container
     {
         return $this->getUrl('sales/order_invoice/start');
     }
-
     /**
      * Credit memo URL getter
      *
@@ -366,7 +232,6 @@ class View extends \Magento\Backend\Block\Widget\Form\Container
     {
         return $this->getUrl('sales/order_creditmemo/start');
     }
-
     /**
      * Hold URL getter
      *
@@ -376,7 +241,6 @@ class View extends \Magento\Backend\Block\Widget\Form\Container
     {
         return $this->getUrl('sales/*/hold');
     }
-
     /**
      * Unhold URL getter
      *
@@ -386,7 +250,6 @@ class View extends \Magento\Backend\Block\Widget\Form\Container
     {
         return $this->getUrl('sales/*/unhold');
     }
-
     /**
      * Ship URL getter
      *
@@ -396,7 +259,6 @@ class View extends \Magento\Backend\Block\Widget\Form\Container
     {
         return $this->getUrl('adminhtml/order_shipment/start');
     }
-
     /**
      * Comment URL getter
      *
@@ -406,7 +268,6 @@ class View extends \Magento\Backend\Block\Widget\Form\Container
     {
         return $this->getUrl('sales/*/comment');
     }
-
     /**
      * Reorder URL getter
      *
@@ -416,7 +277,6 @@ class View extends \Magento\Backend\Block\Widget\Form\Container
     {
         return $this->getUrl('sales/order_create/reorder');
     }
-
     /**
      * Payment void URL getter
      *
@@ -426,7 +286,6 @@ class View extends \Magento\Backend\Block\Widget\Form\Container
     {
         return $this->getUrl('sales/*/voidPayment');
     }
-
     /**
      * Check permission for passed action
      *
@@ -437,7 +296,6 @@ class View extends \Magento\Backend\Block\Widget\Form\Container
     {
         return $this->_authorization->isAllowed($resourceId);
     }
-
     /**
      * Return back url for view grid
      *
@@ -448,10 +306,8 @@ class View extends \Magento\Backend\Block\Widget\Form\Container
         if ($this->getOrder() && $this->getOrder()->getBackUrl()) {
             return $this->getOrder()->getBackUrl();
         }
-
         return $this->getUrl('sales/*/');
     }
-
     /**
      * Payment review URL getter
      *
@@ -462,7 +318,6 @@ class View extends \Magento\Backend\Block\Widget\Form\Container
     {
         return $this->getUrl('sales/*/reviewPayment', ['action' => $action]);
     }
-
     /**
      * @param \Magento\Sales\Model\Order $order
      * @return \Magento\Framework\Phrase
@@ -473,16 +328,13 @@ class View extends \Magento\Backend\Block\Widget\Form\Container
         $nonEditableTypes = $this->getNonEditableTypes($order);
         if (!empty($nonEditableTypes)) {
             return __(
-                'This order contains (%1) items and therefore cannot be edited through the admin interface. ' .
-                'If you wish to continue editing, the (%2) items will be removed, ' .
-                ' the order will be canceled and a new order will be placed.',
-                implode(', ', $nonEditableTypes),
-                implode(', ', $nonEditableTypes)
+                    'This order contains (%1) items and therefore cannot be edited through the admin interface. ' .
+                    'If you wish to continue editing, the (%2) items will be removed, ' .
+                    ' the order will be canceled and a new order will be placed.', implode(', ', $nonEditableTypes), implode(', ', $nonEditableTypes)
             );
         }
         return __('Are you sure? This order will be canceled and a new one will be created instead.');
     }
-
     /**
      * @param \Magento\Sales\Model\Order $order
      * @return array
@@ -490,11 +342,9 @@ class View extends \Magento\Backend\Block\Widget\Form\Container
     protected function getNonEditableTypes($order)
     {
         return array_keys(
-            $this->getOrder()->getResource()->aggregateProductsByTypes(
-                $order->getId(),
-                $this->_salesConfig->getAvailableProductTypes(),
-                false
-            )
+                $this->getOrder()->getResource()->aggregateProductsByTypes(
+                        $order->getId(), $this->_salesConfig->getAvailableProductTypes(), false
+                )
         );
     }
 }

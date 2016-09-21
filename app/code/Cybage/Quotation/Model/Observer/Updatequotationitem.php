@@ -25,7 +25,8 @@ namespace Cybage\Quotation\Model\Observer;
 use Magento\Framework\Event\Observer;
 use Magento\Framework\Event\ObserverInterface;
 
-class Updatequotationitem implements ObserverInterface {
+class Updatequotationitem implements ObserverInterface
+{
 
     private $_quotation;
     private $_quotationItem;
@@ -36,7 +37,8 @@ class Updatequotationitem implements ObserverInterface {
     private $_itemLog;
 
     public function __construct(\Cybage\Quotation\Model\Quotation $quotation, \Cybage\Quotation\Model\ResourceModel\QuotationItem\Collection $quotationItem, \Magento\Catalog\Model\Product $product, \Magento\Catalog\Model\Product\Option $productOption, \Magento\Catalog\Model\Product\Option\Value $productOptionValue, \Cybage\Quotation\Model\QuotationItemLog $itemLog
-    ) {
+    )
+    {
         $this->_quotation = $quotation;
         $this->_quotationItem = $quotationItem;
         $this->_product = $product;
@@ -45,7 +47,8 @@ class Updatequotationitem implements ObserverInterface {
         $this->_itemLog = $itemLog;
     }
 
-    public function execute(Observer $observer) {
+    public function execute(Observer $observer)
+    {
         $item = $observer->getItem();
 
         $quotationItemCollection = $this->_quotationItem->addFieldToFilter('quotation_id', $this->_quotationId);
@@ -55,8 +58,8 @@ class Updatequotationitem implements ObserverInterface {
             $qty = (float) $item->getQty();
             if ($item->getOptions() && $productDetails->getTypeID() == 'simple') {
                 $options = unserialize($item->getOptions());
-                $optionIds = array();
-                $optionValues = array();
+                $optionIds = [];
+                $optionValues = [];
                 foreach ($options as $key => $value) {
                     $optionIds[] = $key;
                     $optionValues[] = $value;
@@ -71,7 +74,7 @@ class Updatequotationitem implements ObserverInterface {
                 $productPrice = $opprice * $qty;
             }/**/ elseif ($productDetails->getTypeID() == 'bundle') {
                 $options = unserialize($item->getOptions());
-                
+
                 $opprice = $this->getBundleProductPrice($productDetails, $options);
                 $productPrice = $opprice * $qty;
             } else {
@@ -98,7 +101,6 @@ class Updatequotationitem implements ObserverInterface {
         $this->_product->unsetData();
         $this->_productOption->unsetData();
         $this->_productOptionValue->unsetData();
-        
     }
 
     /**
@@ -106,21 +108,24 @@ class Updatequotationitem implements ObserverInterface {
      * @param type $pid
      * @return type object
      */
-    private function getProductDetails($pid) {
+    private function getProductDetails($pid)
+    {
         return $this->_product->load($pid);
     }
 
-    public function getOptionPrice($product, $optionIds, $optionValues) {
+    public function getOptionPrice($product, $optionIds, $optionValues)
+    {
         $options = $this->_productOption->getProductOptionCollection($product);
-        $options->addFieldToFilter('main_table.option_id', array('in' => $optionIds));
+        $options->addFieldToFilter('main_table.option_id', ['in' => $optionIds]);
         $productPrice = $product->getPrice();
         $optionPrice = 0;
         foreach ($options as $option) {
             $optionvalues = $this->_productOptionValue->getValuesCollection($option);
-            $optionvalues->addFieldToFilter('main_table.option_type_id', array('in' => $optionValues));
+            $optionvalues->addFieldToFilter('main_table.option_type_id', ['in' => $optionValues]);
             foreach ($optionvalues as $value) {
                 $priceData = $value->getData();
-                switch ($priceData['price_type']) {
+                switch ($priceData['price_type'])
+                {
                     case 'percent':
                         $optionPrice += ($productPrice * $priceData['price'] / 100);
                         break;
@@ -136,15 +141,16 @@ class Updatequotationitem implements ObserverInterface {
         return $productPrice + $optionPrice;
     }
 
-    private function getConfigurableProductPrice($product = null, $options = null) {
+    private function getConfigurableProductPrice($product = null, $options = null)
+    {
         if ($product && $options) {
             $attributes = $product->getTypeInstance(true)->getConfigurableAttributes($product);
-            $pricesByAttributeValues = array();
+            $pricesByAttributeValues = [];
             $basePrice = $product->getFinalPrice();
             $simple = $product->getTypeInstance(true)->getUsedProducts($product);
             foreach ($simple as $sProduct) {
                 $totalPrice = $basePrice;
-                $confArray = array();
+                $confArray = [];
                 foreach ($attributes as $attribute) {
                     $attributeId = $attribute->getId();
                     $productAttribute = $attribute->getProductAttribute();
@@ -160,10 +166,11 @@ class Updatequotationitem implements ObserverInterface {
         }
     }
 
-    private function getBundleProductPrice($product = null, $options = null) {
+    private function getBundleProductPrice($product = null, $options = null)
+    {
         $price = 0;
         try {
-            
+
             $selections = $product->getTypeInstance(true)
                     ->getSelectionsCollection($product->getTypeInstance(true)
                     ->getOptionsIds($product), $product);

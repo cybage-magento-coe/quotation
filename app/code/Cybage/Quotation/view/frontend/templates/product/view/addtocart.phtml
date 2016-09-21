@@ -47,14 +47,14 @@
                     <span><?php /* @escapeNotVerified */ echo $buttonTitle ?></span>
                 </button>
                 <?php if ($this->showAddToQuote('pdp')): ?>
-                <button type="submit"
-                        title="<?php echo 'Add to Quote' ?>"
-                        class="action primary add-to-quote"
-                        name="add_to_quote"
-                        value="add_to_quote"
-                        id="add_to_quote_buttion">
-                    <span><?php echo 'Add to Quote' ?></span>
-                </button>
+                    <button type="submit"
+                            title="<?php echo 'Add to Quote' ?>"
+                            class="action primary add-to-quote"
+                            name="add_to_quote"
+                            value="add_to_quote"
+                            id="add_to_quote_buttion">
+                        <span><?php echo 'Add to Quote' ?></span>
+                    </button>
                 <?php endif; ?>
                 <?php echo $block->getChildHtml('', true) ?>
             </div>
@@ -85,7 +85,7 @@
                 is_quotation = true;
             })
             $('#product-addtocart-button').click(function () {
-                $('#product_addtocart_form').attr('action', "<?php echo $block->getSubmitUrl($_product)   ?>");
+                $('#product_addtocart_form').attr('action', "<?php echo $block->getSubmitUrl($_product) ?>");
                 is_quotation = false;
             });
             'use strict';

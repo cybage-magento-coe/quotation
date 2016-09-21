@@ -25,7 +25,8 @@ namespace Cybage\Quotation\Model\Observer;
 use Magento\Framework\Event\Observer;
 use Magento\Framework\Event\ObserverInterface;
 
-class Updatequotation implements ObserverInterface {
+class Updatequotation implements ObserverInterface
+{
 
     private $_quotation;
     private $_quotationItem;
@@ -35,13 +36,9 @@ class Updatequotation implements ObserverInterface {
     private $_quotationHelper;
 
     public function __construct(
-    \Cybage\Quotation\Model\Quotation $quotation, 
-            \Cybage\Quotation\Model\QuotationItem $quotationItem, 
-            \Cybage\Quotation\Model\QuotationLog $quotationLog, 
-            \Magento\Framework\App\RequestInterface $request,
-            \Magento\Customer\Model\ResourceModel\Customer\Collection $customerCollection,
-            \Cybage\Quotation\Helper\Data $quotationHelper
-    ) {
+    \Cybage\Quotation\Model\Quotation $quotation, \Cybage\Quotation\Model\QuotationItem $quotationItem, \Cybage\Quotation\Model\QuotationLog $quotationLog, \Magento\Framework\App\RequestInterface $request, \Magento\Customer\Model\ResourceModel\Customer\Collection $customerCollection, \Cybage\Quotation\Helper\Data $quotationHelper
+    )
+    {
         $this->_quotation = $quotation;
         $this->_quotationItem = $quotationItem;
         $this->_quotationLog = $quotationLog;
@@ -50,7 +47,8 @@ class Updatequotation implements ObserverInterface {
         $this->_quotationHelper = $quotationHelper;
     }
 
-    public function execute(Observer $observer) {
+    public function execute(Observer $observer)
+    {
         try {
             $data = $this->_request->getParams();
             $quotationId = $observer->getId();
@@ -58,7 +56,7 @@ class Updatequotation implements ObserverInterface {
             $totalProposedPrice = 0;
             $this->_quotationItem->unsetData();
             $collection = $this->_quotationItem->getCollection()
-                    ->addFieldToFilter('quotation_id', array('eq' => $quotationId));
+                    ->addFieldToFilter('quotation_id', ['eq' => $quotationId]);
             $quotation = $this->_quotation->load($quotationId);
             if ($collection->count()) {
                 foreach ($collection as $value) {
@@ -91,14 +89,15 @@ class Updatequotation implements ObserverInterface {
         }
     }
 
-    public function sendEmail($quotation) {
+    public function sendEmail($quotation)
+    {
         $customerId = $quotation->getCustomerId();
-        $customer = $this->_customerCollection->addAttributeToFilter('entity_id',$customerId)->getFirstItem();
+        $customer = $this->_customerCollection->addAttributeToFilter('entity_id', $customerId)->getFirstItem();
 
 
         /* Receiver Detail  */
         $receiverInfo = [
-            'name' => $customer->getFirstname().' '.$customer->getLastname(),
+            'name' => $customer->getFirstname() . ' ' . $customer->getLastname(),
             'email' => $customer->getEmail(),
         ];
 
@@ -112,8 +111,8 @@ class Updatequotation implements ObserverInterface {
 
         /* Assign values for your template variables  */
         //$statusArray = $this->_quotationHelper->getQuotationStatus($status);
-        $emailTemplateVariables = array();
-        $emailTempVariables['customer_name'] = $customer->getFirstname().' '.$customer->getLastname();
+        $emailTemplateVariables = [];
+        $emailTempVariables['customer_name'] = $customer->getFirstname() . ' ' . $customer->getLastname();
         $emailTempVariables['quotation_status'] = $this->_quotationHelper->getQuotationStatus($quotation->getQuotationStatus());
 
         /* We write send mail function in helper because if we want to 
@@ -121,7 +120,7 @@ class Updatequotation implements ObserverInterface {
 
         /* call send mail method from helper or where you define it */
         $this->_quotationHelper->sendMail(
-                $emailTempVariables, $senderInfo, $receiverInfo,true
+                $emailTempVariables, $senderInfo, $receiverInfo, true
         );
     }
 

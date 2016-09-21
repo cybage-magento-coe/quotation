@@ -19,15 +19,15 @@ $commentList = $this->getList();
             </thead>
             <tbody class="even">
                 <?php foreach ($commentList as $value): ?> 
-                <tr>
-                    <td><?php echo $value->getCreatedAt(); ?></td>
-                    <td><?php echo ($value->getCommentedBy()=='a')?'Admin':'Customer'; ?></td>
+                    <tr>
+                <t d><?php echo $value->getCreatedAt(); ?></td>
+                    <td><?php echo ($value->getCommentedBy() == 'a') ? 'Admin' : 'Customer'; ?></td>
                     <td><?php echo $value->getComment(); ?></td>
-                </tr>
+                    </tr>
                 <?php endforeach; ?>  
-            </tbody>
+                </tbody>
         </table>
     <?php else: ?>
         <h5>No Comment Found</h5>
-    <?php endif; ?>
+    <?php endif; ?>  
 </div>
