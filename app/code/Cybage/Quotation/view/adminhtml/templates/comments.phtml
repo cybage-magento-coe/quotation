@@ -20,7 +20,7 @@ $commentList = $this->getList();
             <tbody class="even">
                 <?php foreach ($commentList as $value): ?> 
                     <tr>
-                <t d><?php echo $value->getCreatedAt(); ?></td>
+                    <td><?php echo $value->getCreatedAt(); ?></td>
                     <td><?php echo ($value->getCommentedBy() == 'a') ? 'Admin' : 'Customer'; ?></td>
                     <td><?php echo $value->getComment(); ?></td>
                     </tr>

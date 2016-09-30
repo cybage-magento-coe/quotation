@@ -26,7 +26,7 @@
     
     <body>
         <referenceContainer name="main">
-            <block class="Cybage\Quotation\Block\Quotationdetails" name="quotationdetails" template="Cybage_Quotation::customer/quotation/details.phtml"/>
+            <block class="Cybage\Quotation\Block\Quotationdetails" name="quotationdetails" template="Cybage_Quotation::customer/quotation/details.phtml" cacheable="false"/>
         </referenceContainer>
     </body>
 </page>

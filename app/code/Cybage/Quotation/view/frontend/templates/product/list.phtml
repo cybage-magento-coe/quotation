@@ -123,6 +123,7 @@ $_helper = $this->helper('Magento\Catalog\Helper\Output');
                                         <span><?php /* @escapeNotVerified */ echo __('Add to Compare') ?></span>
                                     </a>
                                 </div>
+                                <?php echo $block->getBlockHtml('addToQupte'); ?>
                                 <?php if ($this->showAddToQuote()): ?>
                                     <a class="action tocart primary addtoquote" title="<?php echo $block->escapeHtml(__('Add to Quote')); ?>" href="<?php echo $this->getAddToQuoteURL($_product) ?>">
                                         <?php echo $block->escapeHtml(__('Add to Quote')); ?>
