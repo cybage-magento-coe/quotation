@@ -53,18 +53,18 @@ class Addtocart extends \Magento\Framework\View\TemplateEngine\Php
         switch ($page)
         {
             case 'list':
-                if ($helper->isQuoteAllowedFromCatalog() && $this->customer->isLoggedIn()) {
+                if ($helper->isQuoteAllowedFromCatalog() /*&& $this->customer->isLoggedIn()*/) {
                     return true;
                 }
                 break;
             case 'pdp':
-                if ($this->customer->isLoggedIn()) {
+                //if ($this->customer->isLoggedIn()) {
                     return true;
-                }
+                //}
                 break;
             case 'cart':
                 //isQuoteAllowedFromCart
-                if ($helper->isQuoteAllowedFromCart() && $this->customer->isLoggedIn()) {
+                if ($helper->isQuoteAllowedFromCart() /*&& $this->customer->isLoggedIn()*/) {
                     return true;
                 }
                 break;
