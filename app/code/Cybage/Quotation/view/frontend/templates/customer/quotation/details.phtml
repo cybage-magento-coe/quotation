@@ -66,8 +66,7 @@ $helper = $this->helper('Cybage\Quotation\Helper\Data');
                     ?>
                     <tr>
                         <td  class="col title">
-                           
-                            <img  src="<?php echo $helper->getProductImaege($value['product_id']);                             ?>" width="50"/>
+                            <img  src="<?php echo $helper->getProductImaege($value['product_id']); ?>" width="50"/>
                         </td>
                         <td class="col title">
                             <?php echo $value['name'] ?>
@@ -100,7 +99,7 @@ $helper = $this->helper('Cybage\Quotation\Helper\Data');
                         </td>
                         <td class="col title">
                             <a href="<?php echo $this->_storeManager->getStore()->getBaseUrl() . "quotation/item/delete/id/{$value['item_id']}"; ?>" >
-                                Remove
+                                <?php echo __('Remove');?>
                             </a>
                         </td>
                     </tr>
@@ -119,15 +118,15 @@ $helper = $this->helper('Cybage\Quotation\Helper\Data');
                         ?>
                     </td>
                     <td colspan="5" align="left" class="col title">
-                        <b style="width:36%; display: inline-block;">Actual Price: </b> <?php echo $this->priceFormat($totalProductPrice); ?>
+                        <b style="width:36%; display: inline-block;"><?php echo __('Actual Price');?>: </b> <?php echo $this->priceFormat($totalProductPrice); ?>
                         <br/>
-                        <b style="width:36%; display: inline-block;">Proposed Price: </b>  <?php echo $this->priceFormat($totalProposedPrice); ?>
+                        <b style="width:36%; display: inline-block;"><?php echo __('Proposed Price');?>: </b>  <?php echo $this->priceFormat($totalProposedPrice); ?>
                     </td>
                 </tr>
                 <tr>
                     <td colspan="5" align="right" class="col title">
-                        <?php if ($quotationStatus == 0 || $quotationStatus == 2): ?>
-                            <b>Comment: </b>
+                        <?php if (/*$quotationStatus == 0 ||*/ $quotationStatus == 2): ?>
+                            <b><?php echo __('Comment');?>: </b>
                             <textarea name='comment'></textarea>
                         <?php endif; ?>
                         <input type="hidden" name="quotationid" value="<?php echo $quotationId; ?>"/>
@@ -139,13 +138,13 @@ $helper = $this->helper('Cybage\Quotation\Helper\Data');
                             <button type="submit" name="submit_quotation" value="submit" class="action primary" onclick="return confirm('Once it is submitted you will not be able to change again. Are you sure..?')">Submit Quotation</button>
                             <button type="submit" name="submit_quotation" value="update" class="action primary">Update Quotation</button>
                         <?php elseif ($quotationStatus == 1): ?>
-                            <label>Delivery Date</label><?php echo $deliveryDate; ?>
+                            <label><?php echo __('Delivery Date');?></label><?php echo $deliveryDate; ?>
                             <button type="submit" name="convert_to_cart" value="update" class="action primary">Purchase Item(s)</button>
             <!--                    <input type="submit" name="convert_to_cart" value="Purchase Item(s)" />
                             <input id="tea-submit" type="submit" name="convert_to_cart" value="Tea">
                             <input id="coffee-submit" type="submit" name="submit" value="Coffee">-->
                         <?php else: ?>
-                            <label>Delivery Date</label><?php echo $deliveryDate; ?>
+                            <label><?php echo __('Delivery Date');?></label><?php echo $deliveryDate; ?>
                         <?php endif; ?>
 
                     </td>

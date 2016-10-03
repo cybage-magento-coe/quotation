@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Cybage Quotation Plugin
  *
@@ -18,10 +19,14 @@
  * @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  * @author     Cybage Software Pvt. Ltd. <Support_Magento@cybage.com>
  */
+
 namespace Cybage\Quotation\Controller\Add;
+
 use Magento\Framework\Controller\ResultFactory;
+
 class Index extends \Magento\Customer\Controller\AbstractAccount
 {
+
     protected $_quotation;
     protected $_customer;
     protected $_customerId;
@@ -33,6 +38,7 @@ class Index extends \Magento\Customer\Controller\AbstractAccount
     protected $_managerinterface;
     protected $_event;
     protected $_quotationHelper;
+
     public function __construct(\Magento\Framework\App\Action\Context $context, \Cybage\Quotation\Model\Quotation $quotation, \Magento\Customer\Model\Session $customer, \Cybage\Quotation\Model\QuotationItem $quotationItem, \Magento\Framework\Data\Form\FormKey\Validator $formKeyValidator, \Magento\Catalog\Model\Product $product, \Magento\ConfigurableProduct\Model\Product\Type\Configurable $configurableProduct, \Magento\Framework\Message\ManagerInterface $managerinterface, \Magento\Framework\Event\ManagerInterface $event, \Cybage\Quotation\Helper\Data $data)
     {
         $this->_quotation = $quotation;
@@ -47,14 +53,26 @@ class Index extends \Magento\Customer\Controller\AbstractAccount
         $this->_quotationHelper = $data;
         parent::__construct($context);
     }
+
     public function execute()
     {
         $data = $this->getRequest()->getParams();
+        
         $resultRedirect = $this->resultFactory->create(ResultFactory::TYPE_REDIRECT);
         // Your code
+//        echo '<pre>';
+//        print_r($data);
+//        echo '</pre>';
+//        die();
+        if(empty($data)){
+            $resultRedirect->setPath('customer/account/');
+            return $resultRedirect;
+        }
         if (!$this->_formKeyValidator->validate($this->getRequest())) {
             return $this->resultRedirectFactory->create()->setPath('*/*/');
         }
+        
+
         if (!empty($data) && $this->_quotationHelper->isActive()) {
             try {
                 $this->_quotationId = $this->activeQuotationId();
@@ -77,6 +95,7 @@ class Index extends \Magento\Customer\Controller\AbstractAccount
             return $resultRedirect;
         }
     }
+
     /**
      * Check for active quotation for this user and return the ID
      * @return int
@@ -91,6 +110,7 @@ class Index extends \Magento\Customer\Controller\AbstractAccount
         }
         return false;
     }
+
     /**
      * Creates new Quotation and returns ID
      */
@@ -101,6 +121,7 @@ class Index extends \Magento\Customer\Controller\AbstractAccount
         $this->_quotation->save();
         return $this->_quotation->getId();
     }
+
     /**
      * Add Item to Quotation 
      */
@@ -160,6 +181,7 @@ class Index extends \Magento\Customer\Controller\AbstractAccount
             }
         }
     }
+
     /**
      * insert/update records to quotation_item Table
      */
@@ -200,13 +222,14 @@ class Index extends \Magento\Customer\Controller\AbstractAccount
         }
         return $id;
     }
+
     /**
      * check whether Item is already added to Quotation if yes then returns details
      * @param type $pid
      */
     public function getQuotationItemId($data = null, $parentId = false, $childId = false)
     {
-        
+
         if (!empty($data)) {
             try {
                 $collection = $this->_quotationItem->getCollection()
@@ -234,6 +257,7 @@ class Index extends \Magento\Customer\Controller\AbstractAccount
             return $collection->getFirstItem()->getData();
         }
     }
+
     /**
      * returns the array of child product ids
      * @param type $data
@@ -268,4 +292,5 @@ class Index extends \Magento\Customer\Controller\AbstractAccount
         }
         return $child;
     }
+
 }

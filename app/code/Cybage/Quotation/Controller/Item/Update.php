@@ -40,8 +40,9 @@ class Update extends \Magento\Customer\Controller\AbstractAccount
     protected $_quoteItem;
     protected $_cart;
     protected $_product;
+    protected $_quote;
 
-    public function __construct(\Magento\Framework\App\Action\Context $context, \Magento\Framework\Data\Form\FormKey\Validator $formKeyValidator, \Cybage\Quotation\Model\QuotationItem $quotationitem, \Magento\Framework\Message\ManagerInterface $managerinterface, \Magento\Framework\Event\ManagerInterface $event, \Cybage\Quotation\Helper\Data $data, \Cybage\Quotation\Model\QuotationComment $quotationComment, \Magento\Customer\Model\Session $customer, \Magento\Checkout\Model\Session $checkoutSession, \Magento\Quote\Model\Quote\Item $quoteItem, \Magento\Checkout\Model\Cart $cart, \Magento\Catalog\Api\ProductRepositoryInterface $product)
+    public function __construct(\Magento\Framework\App\Action\Context $context, \Magento\Framework\Data\Form\FormKey\Validator $formKeyValidator, \Cybage\Quotation\Model\QuotationItem $quotationitem, \Magento\Framework\Message\ManagerInterface $managerinterface, \Magento\Framework\Event\ManagerInterface $event, \Cybage\Quotation\Helper\Data $data, \Cybage\Quotation\Model\QuotationComment $quotationComment, \Magento\Customer\Model\Session $customer, \Magento\Checkout\Model\Session $checkoutSession, \Magento\Quote\Model\Quote\Item $quoteItem, \Magento\Checkout\Model\Cart $cart, \Magento\Catalog\Api\ProductRepositoryInterface $product, \Magento\Quote\Model\Quote $quote)
     {
 
         $this->_formKeyValidator = $formKeyValidator;
@@ -56,11 +57,13 @@ class Update extends \Magento\Customer\Controller\AbstractAccount
         $this->_quoteItem = $quoteItem;
         $this->_cart = $cart;
         $this->_product = $product;
+        $this->_quote = $quote;
         parent::__construct($context);
     }
 
     public function execute()
     {
+        //die('here');
         $resultRedirect = $this->resultFactory->create(ResultFactory::TYPE_REDIRECT);
         $data = $this->getRequest()->getParams();
         $setData = [];
@@ -99,7 +102,7 @@ class Update extends \Magento\Customer\Controller\AbstractAccount
             $this->deleteQuoteItems();
             if ($this->addItemsToCart($data['quotationid'])) {
                 $this->_customer->setQuotationId($data['quotationid']);
-                $resultRedirect->setUrl('/checkout');
+                $resultRedirect->setUrl('/checkout/cart');
                 return $resultRedirect;
             } else {
                 $this->_managerinterface->addError('Some unexpected error happend.');
@@ -131,12 +134,17 @@ class Update extends \Magento\Customer\Controller\AbstractAccount
     private function deleteQuoteItems()
     {
         $checkoutSession = $this->_checkoutSession;
-        $allItems = $checkoutSession->getQuote()->getAllVisibleItems();
-        foreach ($allItems as $item) {
-            $itemId = $item->getItemId(); //item id of particular item
-            $quoteItem = $this->_quoteItem->load($itemId); //load particular item which you want to delete by his item id
-            $quoteItem->delete(); //deletes the item
-        }
+//        echo $checkoutSession->getQuote()->getId();
+//        die();
+        
+//        $allItems = $checkoutSession->getQuote()->getAllVisibleItems();
+//        foreach ($allItems as $item) {
+//            $itemId = $item->getItemId(); //item id of particular item
+//            $quoteItem = $this->_quoteItem->load($itemId); //load particular item which you want to delete by his item id
+//            $quoteItem->delete(); //deletes the item
+//        }
+        $this->_quote->load($checkoutSession->getQuote()->getId())->delete();
+        $checkoutSession->clearQuote();
     }
 
     private function addItemsToCart($quotationId = null)
