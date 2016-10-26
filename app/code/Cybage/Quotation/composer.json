@@ -10,7 +10,7 @@
     "repositories": [
     {
         "type": "composer",
-        "url": "https://packagist.org/packages/cybage/module-quotation"
+        //"url": "https://packagist.org/packages/cybage/module-quotation"
     }
     ],
      "require": {
